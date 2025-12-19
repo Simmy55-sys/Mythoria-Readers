@@ -14,7 +14,7 @@ export default function RegisterUser() {
         </div>
       }
     >
-      <RegisterAccount />;
+      <RegisterAccount />
     </Suspense>
   );
 }

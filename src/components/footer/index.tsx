@@ -22,7 +22,7 @@ export default function ApplicationFooter() {
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
           <div className="flex flex-col items-center gap-1">
-            <Logo />
+            <Logo className="size-20" />
             <p>The Special Vault Edition of Novels</p>
           </div>
 
@@ -48,7 +48,7 @@ export default function ApplicationFooter() {
           </div>
         </div>
         <p className="text-muted-foreground text-center text-sm md:text-left mt-7 mx-auto w-fit">
-          &copy; {YEAR} apexhub.com All rights reserved.
+          &copy; {YEAR} mythoriatales.com All rights reserved.
         </p>
       </div>
 

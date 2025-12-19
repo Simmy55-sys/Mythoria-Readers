@@ -14,7 +14,7 @@ export default function Series() {
         </div>
       }
     >
-      <AllSeries />;
+      <AllSeries />
     </Suspense>
   );
 }

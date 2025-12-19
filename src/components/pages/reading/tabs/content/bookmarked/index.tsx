@@ -11,7 +11,7 @@ import { allSeries } from "@/routes/client";
 import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
 import { login } from "@/routes/client";
-import { useRouter } from "next/navigation";
+import { redirect, usePathname, useRouter } from "next/navigation";
 
 // Date formatting helper
 const formatDate = (date: string | Date) => {
@@ -36,11 +36,14 @@ export default function BookmarkedChapters() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const pathname = usePathname();
+  const redirect = encodeURIComponent(pathname);
+
   useEffect(() => {
     if (authLoading) return;
 
     if (!isAuthenticated) {
-      router.push(login);
+      router.push(login + "?redirect=" + redirect);
       return;
     }
 

@@ -14,7 +14,7 @@ export default function PurchaseSuccessPage() {
         </div>
       }
     >
-      <PurchaseSuccessComponent />;
+      <PurchaseSuccessComponent />
     </Suspense>
   );
 }

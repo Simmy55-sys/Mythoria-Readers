@@ -14,7 +14,7 @@ export default function LoginUser() {
         </div>
       }
     >
-      <LoginAccount />;
+      <LoginAccount />
     </Suspense>
   );
 }
