@@ -154,7 +154,7 @@ export default function RegisterAccount() {
         <p className="text-muted-foreground text-center">
           Already have an account?{" "}
           <Link
-            href={login + redirect ? "?redirect=" + redirect : ""}
+            href={login + (redirect ? "?redirect=" + redirect : "")}
             className="text-foreground hover:underline hover:text-accent"
           >
             Login instead

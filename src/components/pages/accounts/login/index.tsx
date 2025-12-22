@@ -140,7 +140,7 @@ export default function LoginAccount() {
         <p className="text-muted-foreground text-center">
           New on our platform?{" "}
           <Link
-            href={register + "?redirect=" + redirect}
+            href={register + (redirect ? "?redirect=" + redirect : "")}
             className="text-foreground hover:underline hover:text-accent"
           >
             Create an account
