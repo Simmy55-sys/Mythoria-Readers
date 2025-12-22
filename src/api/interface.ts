@@ -21,6 +21,10 @@ import {
   verifyPaymentRoute,
   getUserCoinPurchasesRoute,
   getCoinPurchaseRoute,
+  createCommentRoute,
+  getSeriesCommentsRoute,
+  getChapterCommentsRoute,
+  deleteCommentRoute,
 } from "@/routes/server";
 import {
   LatestChapterResponse,
@@ -269,7 +273,7 @@ class ApiClient {
     slug: string,
     page?: number,
     limit?: number,
-    cookieHeader?: string,
+    cookieHeader?: string
   ) {
     const params: Record<string, string> = {};
     if (page) params.page = page.toString();
@@ -553,7 +557,7 @@ class ApiClient {
    */
   async createCoinPurchaseOrder(
     data: CreateCoinPurchaseOrderRequest,
-    cookieHeader?: string,
+    cookieHeader?: string
   ) {
     return this.execute<CreateCoinPurchaseOrderResponse>({
       method: "POST",
@@ -598,6 +602,63 @@ class ApiClient {
     return this.execute<CoinPurchaseResponse>({
       method: "GET",
       endpoint: getCoinPurchaseRoute(purchaseId),
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+    });
+  }
+
+  /**
+   * Create a comment
+   * @param data - Comment data
+   * @param cookieHeader - Optional cookie header string for server-side requests
+   */
+  async createComment(
+    data: {
+      content: string;
+      seriesId?: string;
+      chapterId?: string;
+      parentCommentId?: string;
+    },
+    cookieHeader?: string
+  ) {
+    return this.execute<any>({
+      method: "POST",
+      endpoint: createCommentRoute,
+      data,
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+    });
+  }
+
+  /**
+   * Get comments for a series
+   * @param seriesId - Series ID
+   */
+  async getSeriesComments(seriesId: string) {
+    return this.execute<any[]>({
+      method: "GET",
+      endpoint: getSeriesCommentsRoute(seriesId),
+    });
+  }
+
+  /**
+   * Get comments for a chapter
+   * @param chapterId - Chapter ID
+   */
+  async getChapterComments(chapterId: string) {
+    return this.execute<any[]>({
+      method: "GET",
+      endpoint: getChapterCommentsRoute(chapterId),
+    });
+  }
+
+  /**
+   * Delete a comment
+   * @param commentId - Comment ID
+   * @param cookieHeader - Optional cookie header string for server-side requests
+   */
+  async deleteComment(commentId: string, cookieHeader?: string) {
+    return this.execute<any>({
+      method: "DELETE",
+      endpoint: deleteCommentRoute(commentId),
       headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
     });
   }

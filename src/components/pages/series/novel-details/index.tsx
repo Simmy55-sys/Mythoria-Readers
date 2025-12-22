@@ -40,6 +40,8 @@ import { allSeries } from "@/routes/client";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { login } from "@/routes/client";
+import CommentSection from "@/components/comment/comment-section";
+import { toast } from "sonner";
 // Date formatting helper
 const formatDate = (date: string | Date) => {
   const dateObj = typeof date === "string" ? new Date(date) : date;
@@ -276,7 +278,35 @@ export default function NovelDetailsComponent() {
                     ? "Bookmarked"
                     : "Bookmark"}
                 </button>
-                <button className="w-full bg-card hover:bg-card/80 border border-primary/20 text-foreground font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition">
+                <button
+                  onClick={async () => {
+                    const url = window.location.href;
+                    const title = series?.title || "Check out this series";
+                    const text = `Check out "${title}" on Apex Novel`;
+
+                    if (navigator.share) {
+                      try {
+                        await navigator.share({
+                          title,
+                          text,
+                          url,
+                        });
+                      } catch (err) {
+                        // User cancelled or error occurred
+                        if ((err as Error).name !== "AbortError") {
+                          // Fallback to clipboard
+                          await navigator.clipboard.writeText(url);
+                          toast.success("Link copied to clipboard!");
+                        }
+                      }
+                    } else {
+                      // Fallback to clipboard
+                      await navigator.clipboard.writeText(url);
+                      toast.success("Link copied to clipboard!");
+                    }
+                  }}
+                  className="w-full bg-card hover:bg-card/80 border border-primary/20 text-foreground font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition"
+                >
                   <Share2Icon className="w-5 h-5" />
                   Share
                 </button>
@@ -481,6 +511,13 @@ export default function NovelDetailsComponent() {
             </div>
           </div>
         </div>
+
+        {/* Comments Section */}
+        {series && (
+          <div className="mt-12">
+            <CommentSection seriesId={series.id} />
+          </div>
+        )}
       </div>
     </main>
   );

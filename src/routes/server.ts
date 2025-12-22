@@ -25,3 +25,10 @@ export const verifyPaymentRoute = "/payment/coins/verify";
 export const getUserCoinPurchasesRoute = "/payment/coins/purchases";
 export const getCoinPurchaseRoute = (purchaseId: string) =>
   `/payment/coins/purchase/${purchaseId}`;
+export const createCommentRoute = "/comment";
+export const getSeriesCommentsRoute = (seriesId: string) =>
+  `/comment/series/${seriesId}`;
+export const getChapterCommentsRoute = (chapterId: string) =>
+  `/comment/chapter/${chapterId}`;
+export const deleteCommentRoute = (commentId: string) =>
+  `/comment/${commentId}`;

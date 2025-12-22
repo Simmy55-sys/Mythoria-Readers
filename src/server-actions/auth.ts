@@ -98,6 +98,7 @@ export async function loginAction(credentials: LoginRequest) {
           sameSite: cookieData.options.sameSite ?? "lax",
           maxAge: cookieData.options.maxAge,
           path: cookieData.options.path ?? "/",
+          domain: cookieData.options.domain,
         });
         break; // Found the accessToken cookie, no need to continue
       }
@@ -141,6 +142,7 @@ export async function registerAction(userData: RegisterRequest) {
           sameSite: cookieData.options.sameSite ?? "lax",
           maxAge: cookieData.options.maxAge,
           path: cookieData.options.path ?? "/",
+          domain: cookieData.options.domain,
         });
         break; // Found the accessToken cookie, no need to continue
       }

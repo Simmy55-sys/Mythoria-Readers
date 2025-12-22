@@ -34,6 +34,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { PiCoinsThin } from "react-icons/pi";
 import { toast } from "sonner";
+import CommentSection from "@/components/comment/comment-section";
 
 // Date formatting helper
 const formatDate = (date: string | Date) => {
@@ -395,6 +396,36 @@ export default function ChapterReaderPage({
 
               <div className="flex items-end">
                 <Button
+                  onClick={async () => {
+                    const url = window.location.href;
+                    const title = chapterData?.chapter?.title
+                      ? `Chapter ${chapterData.chapter.chapterNumber}: ${chapterData.chapter.title}`
+                      : `Chapter ${chapterNumber}`;
+                    const text = `Check out "${title}" from "${
+                      chapterData?.series?.title || "this series"
+                    }" on Apex Novel`;
+
+                    if (navigator.share) {
+                      try {
+                        await navigator.share({
+                          title,
+                          text,
+                          url,
+                        });
+                      } catch (err) {
+                        // User cancelled or error occurred
+                        if ((err as Error).name !== "AbortError") {
+                          // Fallback to clipboard
+                          await navigator.clipboard.writeText(url);
+                          toast.success("Link copied to clipboard!");
+                        }
+                      }
+                    } else {
+                      // Fallback to clipboard
+                      await navigator.clipboard.writeText(url);
+                      toast.success("Link copied to clipboard!");
+                    }
+                  }}
                   variant="ghost"
                   className="flex-1 px-4 py-2 border border-border rounded hover:border-secondary transition flex items-center justify-center gap-2 hover:bg-transparent hover:text-white"
                 >
@@ -550,17 +581,10 @@ export default function ChapterReaderPage({
           )}
         </div>
 
-        {/* Comment Section Teaser */}
-        {!isPremiumLocked && (
-          <div className="mt-12 p-6 bg-card rounded-lg border border-border text-center">
-            <h4 className="font-semibold mb-2">Join the Discussion</h4>
-            <p className="text-muted-foreground mb-4">
-              What did you think of this chapter? Share your thoughts with other
-              readers!
-            </p>
-            <button className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition">
-              View Comments
-            </button>
+        {/* Comments Section */}
+        {!isPremiumLocked && chapterData?.chapter && (
+          <div className="mt-12">
+            <CommentSection chapterId={chapterData.chapter.id} />
           </div>
         )}
       </div>
