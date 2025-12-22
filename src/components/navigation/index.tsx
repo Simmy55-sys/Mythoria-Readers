@@ -3,7 +3,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Logo from "@/assets/logo";
 import { Button } from "@/components/ui/button";
-import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { CgClose, CgMenuLeft } from "react-icons/cg";
 import { useState } from "react";
@@ -19,6 +18,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { LogOut, User } from "lucide-react";
+import { TbCoins } from "react-icons/tb";
 
 const navigationLinks = [
   {
@@ -142,13 +142,23 @@ export default function Navigation() {
             </div>
 
             <div className="flex items-center gap-1.5">
-              <Button variant="ghost" size="icon">
-                <SearchIcon />
-                <span className="sr-only">Search</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="flex items-center gap-1 hover:bg-transparent hover:text-blue-500"
+                asChild
+              >
+                <Link href={purchase}>
+                  <TbCoins />
+                  <span className="text-sm font-semibold">
+                    {user?.coinBalance ?? 0}
+                  </span>
+                  <span className="sr-only">Coins</span>
+                </Link>
               </Button>
               {isAuthenticated ? (
                 <>
-                  <div className="max-md:hidden flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="max-md:hidden flex items-center gap-2 text-sm text-muted-foreground ml-2">
                     <User className="w-4 h-4" />
                     <span>{user?.username}</span>
                   </div>
