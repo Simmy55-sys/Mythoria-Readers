@@ -336,9 +336,15 @@ export default function NovelDetailsComponent() {
             {/* Description */}
             <div className="mb-12">
               <h2 className="text-2xl font-bold mb-4">Overview</h2>
-              <p className="text-muted-foreground leading-relaxed text-lg">
-                {series.description}
-              </p>
+              <div
+                className="text-muted-foreground leading-relaxed text-lg [&_p]:mb-4 [&_p]:text-muted-foreground 
+                  [&_strong]:text-foreground [&_strong]:font-semibold
+                  [&_em]:text-muted-foreground [&_em]:italic
+                  [&_ul]:my-4 [&_ul]:pl-6 [&_ul]:list-disc [&_ul]:text-muted-foreground
+                  [&_ol]:my-4 [&_ol]:pl-6 [&_ol]:list-decimal [&_ol]:text-muted-foreground
+                  [&_li]:my-2 [&_li]:text-muted-foreground"
+                dangerouslySetInnerHTML={{ __html: series.description || "" }}
+              />
             </div>
 
             {/* Rating */}
@@ -347,7 +353,7 @@ export default function NovelDetailsComponent() {
                 <span className="text-4xl font-bold text-primary">
                   {series.averageRating > 0
                     ? series.averageRating.toFixed(1)
-                    : "2"}
+                    : "4"}
                 </span>
                 <span className="text-muted-foreground">/5.0</span>
               </div>

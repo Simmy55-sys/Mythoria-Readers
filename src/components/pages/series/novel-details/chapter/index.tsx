@@ -35,6 +35,7 @@ import { useRouter } from "next/navigation";
 import { PiCoinsThin } from "react-icons/pi";
 import { toast } from "sonner";
 import CommentSection from "@/components/comment/comment-section";
+import MagicRenderer from "./global/magic-tags/renderer";
 
 // Date formatting helper
 const formatDate = (date: string | Date) => {
@@ -238,60 +239,6 @@ export default function ChapterReaderPage({
 
   const { chapter, prevChapter, nextChapter, series } = chapterData;
   const isPremiumLocked = chapter.isPremium && !chapter.content;
-
-  // Format chapter content
-  const chapterContent = chapter.content
-    ? chapter.content.split("\n\n").map((paragraph, idx) => (
-        <p
-          key={idx}
-          className="mb-6 leading-relaxed text-justify transition-all"
-          style={{
-            fontSize: `${fontSize}px`,
-            lineHeight: lineHeight,
-          }}
-        >
-          {paragraph
-            .split(/(\*\*.*?\*\*|~~~.*?~~~|\*.*?\*|`.*?`)/g)
-            .map((segment, i) => {
-              if (segment.startsWith("**") && segment.endsWith("**")) {
-                return (
-                  <strong key={i} className="text-primary font-bold">
-                    {segment.slice(2, -2)}
-                  </strong>
-                );
-              }
-              if (segment.startsWith("~~~") && segment.endsWith("~~~")) {
-                return (
-                  <span
-                    key={i}
-                    className="italic text-center block my-4 text-primary font-semibold"
-                  >
-                    {segment.slice(3, -3)}
-                  </span>
-                );
-              }
-              if (segment.startsWith("*") && segment.endsWith("*")) {
-                return (
-                  <em key={i} className="italic text-secondary">
-                    {segment.slice(1, -1)}
-                  </em>
-                );
-              }
-              if (segment.startsWith("`") && segment.endsWith("`")) {
-                return (
-                  <span
-                    key={i}
-                    className="px-2 py-1 bg-card rounded text-accent font-mono text-sm"
-                  >
-                    {segment.slice(1, -1)}
-                  </span>
-                );
-              }
-              return segment;
-            })}
-        </p>
-      ))
-    : null;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -509,8 +456,16 @@ export default function ChapterReaderPage({
 
         {/* Chapter Content */}
         {!isPremiumLocked && (
-          <article className="prose prose-invert max-w-none mb-12">
-            {chapterContent || (
+          <article
+            className="prose prose-invert max-w-none mb-12 transition-all"
+            style={{
+              fontSize: `${fontSize}px`,
+              lineHeight: lineHeight,
+            }}
+          >
+            {chapter.content ? (
+              <MagicRenderer content={chapter.content} />
+            ) : (
               <p className="text-muted-foreground">No content available.</p>
             )}
           </article>
