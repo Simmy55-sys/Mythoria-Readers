@@ -26,7 +26,6 @@ export default function Carousel({
   }, [emblaApi]);
 
   const scrollNext = useCallback(() => {
-    console.log("here");
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 

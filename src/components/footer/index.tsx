@@ -28,19 +28,19 @@ export default function ApplicationFooter() {
 
           <div className="flex items-center gap-3">
             <Link
-              href="#"
+              href="/privacy-policy"
               className="text-muted-foreground hover:text-accent transition-colors text-sm"
             >
               Privacy Policy
             </Link>
             <Link
-              href="#"
+              href="/dmca"
               className="text-muted-foreground hover:text-accent transition-colors text-sm"
             >
               DMCA
             </Link>
             <Link
-              href="#"
+              href="https://discord.gg/ztHauT2j"
               className="text-muted-foreground hover:text-accent transition-colors text-sm"
             >
               Discord

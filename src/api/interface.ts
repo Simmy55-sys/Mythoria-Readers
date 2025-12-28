@@ -25,6 +25,8 @@ import {
   getSeriesCommentsRoute,
   getChapterCommentsRoute,
   deleteCommentRoute,
+  rateSeriesRoute,
+  getUserRatingRoute,
 } from "@/routes/server";
 import {
   LatestChapterResponse,
@@ -659,6 +661,34 @@ class ApiClient {
     return this.execute<any>({
       method: "DELETE",
       endpoint: deleteCommentRoute(commentId),
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+    });
+  }
+
+  /**
+   * Rate a series
+   * @param seriesId - Series ID
+   * @param rating - Rating value (1-5)
+   * @param cookieHeader - Optional cookie header string for server-side requests
+   */
+  async rateSeries(seriesId: string, rating: number, cookieHeader?: string) {
+    return this.execute<{ message: string; rating: any }>({
+      method: "POST",
+      endpoint: rateSeriesRoute(seriesId),
+      data: { rating },
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+    });
+  }
+
+  /**
+   * Get user's rating for a series
+   * @param seriesId - Series ID
+   * @param cookieHeader - Optional cookie header string for server-side requests
+   */
+  async getUserRating(seriesId: string, cookieHeader?: string) {
+    return this.execute<{ rating: number | null }>({
+      method: "GET",
+      endpoint: getUserRatingRoute(seriesId),
       headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
     });
   }

@@ -32,3 +32,6 @@ export const getChapterCommentsRoute = (chapterId: string) =>
   `/comment/chapter/${chapterId}`;
 export const deleteCommentRoute = (commentId: string) =>
   `/comment/${commentId}`;
+export const rateSeriesRoute = (seriesId: string) => `/series/${seriesId}/rate`;
+export const getUserRatingRoute = (seriesId: string) =>
+  `/series/${seriesId}/my-rating`;

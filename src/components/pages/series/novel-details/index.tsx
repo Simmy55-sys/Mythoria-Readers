@@ -7,13 +7,7 @@ import { useParams, useSearchParams, usePathname } from "next/navigation";
 import { PiCoinsThin } from "react-icons/pi";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectItem,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import ApplicationPagination from "@/components/utility/pagination";
 import {
   Bookmark,
@@ -42,6 +36,7 @@ import { useRouter } from "next/navigation";
 import { login } from "@/routes/client";
 import CommentSection from "@/components/comment/comment-section";
 import { toast } from "sonner";
+import ReviewSection from "./review-section";
 // Date formatting helper
 const formatDate = (date: string | Date) => {
   const dateObj = typeof date === "string" ? new Date(date) : date;
@@ -72,6 +67,7 @@ export default function NovelDetailsComponent() {
   const [error, setError] = useState<string | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
+  const [chapterNumberInput, setChapterNumberInput] = useState<string>("");
   const [pagination, setPagination] = useState({
     totalChapters: 0,
     page: 1,
@@ -82,48 +78,61 @@ export default function NovelDetailsComponent() {
   const pathname = usePathname();
   const redirect = encodeURIComponent(pathname);
 
-  useEffect(() => {
-    const fetchSeriesDetails = async () => {
-      if (!slug) return;
+  const fetchSeriesDetails = async () => {
+    if (!slug) return;
 
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
-      try {
-        const result = await getSeriesDetailsAction(slug, page, 20);
+    try {
+      const result = await getSeriesDetailsAction(slug, page, 20);
 
-        if (result.success && result.data) {
-          setSeries(result.data.series);
-          setChapters(result.data.chapters);
-          setPagination({
-            totalChapters: result.data.totalChapters,
-            page: result.data.page,
-            limit: result.data.limit,
-            totalPages: result.data.totalPages,
-          });
+      if (result.success && result.data) {
+        setSeries(result.data.series);
+        setChapters(result.data.chapters);
+        setPagination({
+          totalChapters: result.data.totalChapters,
+          page: result.data.page,
+          limit: result.data.limit,
+          totalPages: result.data.totalPages,
+        });
 
-          // Check bookmark status if authenticated
-          if (isAuthenticated) {
-            const bookmarkResult = await checkBookmarkAction(
-              result.data.series.id
-            );
-            if (bookmarkResult.success && bookmarkResult.data) {
-              setIsBookmarked(bookmarkResult.data.isBookmarked);
-            }
+        // Check bookmark status if authenticated
+        if (isAuthenticated) {
+          const bookmarkResult = await checkBookmarkAction(
+            result.data.series.id
+          );
+          if (bookmarkResult.success && bookmarkResult.data) {
+            setIsBookmarked(bookmarkResult.data.isBookmarked);
           }
-        } else {
-          setError(result.error || "Failed to fetch series details");
         }
-      } catch (err: any) {
-        setError(err.message || "An unexpected error occurred");
-        console.error("Error fetching series details:", err);
-      } finally {
-        setLoading(false);
+      } else {
+        setError(result.error || "Failed to fetch series details");
       }
-    };
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred");
+      console.error("Error fetching series details:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchSeriesDetails();
   }, [slug, page, isAuthenticated]);
+
+  const handleReadChapter = () => {
+    if (!chapterNumberInput || !series) return;
+
+    const chapterNum = parseInt(chapterNumberInput, 10);
+    if (chapterNum >= 1 && chapterNum <= pagination.totalChapters) {
+      router.push(`${allSeries}/${series.slug}/chapter/${chapterNum}`);
+    } else {
+      toast.error(
+        `Please enter a valid chapter number between 1 and ${pagination.totalChapters}`
+      );
+    }
+  };
 
   const handleBookmarkToggle = async () => {
     if (!isAuthenticated) {
@@ -172,9 +181,6 @@ export default function NovelDetailsComponent() {
       </main>
     );
   }
-
-  const latestChapter = chapters[0];
-  const firstChapter = chapters[chapters.length - 1];
 
   return (
     <main className="min-h-screen bg-background">
@@ -247,7 +253,7 @@ export default function NovelDetailsComponent() {
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                {latestChapter && (
+                {chapters.length > 0 && (
                   <Link
                     href={`${allSeries}/${series.slug}/chapter/${
                       chapters[chapters.length - 1].chapterNumber
@@ -348,34 +354,47 @@ export default function NovelDetailsComponent() {
             </div>
 
             {/* Rating */}
-            <div className="flex items-center gap-4 mb-12">
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-primary">
-                  {series.averageRating > 0
-                    ? series.averageRating.toFixed(1)
-                    : "4"}
-                </span>
-                <span className="text-muted-foreground">/5.0</span>
+            <div className="mb-8">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-bold text-primary">
+                    {series.averageRating > 0
+                      ? series.averageRating.toFixed(1)
+                      : "4"}
+                  </span>
+                  <span className="text-muted-foreground">/5.0</span>
+                </div>
+                <div className="flex gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <svg
+                      key={i}
+                      className={`w-6 h-6 ${
+                        i < Math.floor(series.averageRating || 0)
+                          ? "fill-primary"
+                          : "fill-muted"
+                      }`}
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  ))}
+                </div>
+                {series.totalRatings > 0 && (
+                  <span className="text-sm text-muted-foreground">
+                    ({series.totalRatings} ratings)
+                  </span>
+                )}
               </div>
-              <div className="flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <svg
-                    key={i}
-                    className={`w-6 h-6 ${
-                      i < Math.floor(series.averageRating || 0)
-                        ? "fill-primary"
-                        : "fill-muted"
-                    }`}
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                ))}
-              </div>
-              {series.totalRatings > 0 && (
-                <span className="text-sm text-muted-foreground">
-                  ({series.totalRatings} ratings)
-                </span>
+
+              {/* Review Section */}
+              {series.id && (
+                <ReviewSection
+                  seriesId={series.id}
+                  onRatingUpdate={() => {
+                    // Reload series data to get updated rating
+                    fetchSeriesDetails();
+                  }}
+                />
               )}
             </div>
 
@@ -385,83 +404,51 @@ export default function NovelDetailsComponent() {
                 Chapters ({pagination.totalChapters})
               </h2>
 
-              <div className="md:grid flex flex-wrap grid-cols-3 gap-[.5rem] text-[.75rem] items-center leading-4">
-                {firstChapter && (
-                  <Link
-                    href={`${allSeries}/${series.slug}/chapter/${firstChapter.chapterNumber}`}
-                    className="flex-1"
-                  >
-                    <Button className="rounded bg-accent hover:bg-accent/80 flex justify-center content-center font-bold py-3 text-black w-full">
-                      Read Chapter {firstChapter.chapterNumber}
-                    </Button>
-                  </Link>
-                )}
-
-                {latestChapter && (
-                  <Link
-                    href={`${allSeries}/${series.slug}/chapter/${latestChapter.chapterNumber}`}
-                    className="md:hidden flex-1"
-                  >
-                    <Button className="rounded bg-accent hover:bg-accent/80 flex justify-center content-center font-bold py-3 text-black w-full">
-                      Read Latest Chapter
-                      {latestChapter.isPremium && (
-                        <LockKeyholeIcon className="size-4 ml-1" />
-                      )}
-                    </Button>
-                  </Link>
-                )}
-
-                <div className="border-none group focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive relative w-full max-w-xs rounded-md border shadow-xs transition-[color,box-shadow] outline-none focus-within:ring-[3px] has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50 has-[input:is(:disabled)]:*:pointer-events-none bg-[#27272A] flex-1 max-md:mt-3">
+              {/* Chapter Number Input */}
+              <div className="mb-6 flex gap-2 items-end">
+                <div className="flex-1 max-w-xs">
                   <label
-                    htmlFor="read-chapter"
-                    className="text-foreground dark:bg-input/30 dark:group-hover:bg-input/50 block px-3 pt-1 text-xs font-medium"
+                    htmlFor="chapter-number"
+                    className="block text-sm font-medium mb-2 text-foreground"
                   >
-                    Read a chapter
+                    Enter Chapter Number
                   </label>
-                  <Select
-                    onValueChange={(value) => {
-                      const chapterNum = parseInt(value, 10);
-                      window.location.href = `${allSeries}/${series.slug}/chapter/${chapterNum}`;
+                  <Input
+                    id="chapter-number"
+                    type="number"
+                    min="1"
+                    max={pagination.totalChapters}
+                    value={chapterNumberInput}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (
+                        value === "" ||
+                        (parseInt(value, 10) >= 1 &&
+                          parseInt(value, 10) <= pagination.totalChapters)
+                      ) {
+                        setChapterNumberInput(value);
+                      }
                     }}
-                  >
-                    <SelectTrigger
-                      id="read-chapter"
-                      className="dark:group-hover:bg-input/50 w-full rounded-t-none border-none bg-transparent shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                    >
-                      <SelectValue placeholder="Select a chapter" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#27272A]">
-                      {chapters.map((chapter) => (
-                        <SelectItem
-                          value={String(chapter.chapterNumber)}
-                          className="hover:text-black hover:font-semibold group"
-                          key={chapter.id}
-                        >
-                          <span className="flex items-center gap-2">
-                            Chapter {chapter.chapterNumber}
-                            {chapter.isPremium && (
-                              <LockKeyholeIcon className="size-3" />
-                            )}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder={`1-${pagination.totalChapters}`}
+                    className="bg-[#27272A] border-border"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleReadChapter();
+                      }
+                    }}
+                  />
                 </div>
-
-                {latestChapter && (
-                  <Link
-                    href={`${allSeries}/${series.slug}/chapter/${latestChapter.chapterNumber}`}
-                    className="max-md:hidden"
-                  >
-                    <Button className="rounded bg-accent hover:bg-accent/80 flex justify-center content-center font-bold py-3 text-black w-full">
-                      Read Latest Chapter
-                      {latestChapter.isPremium && (
-                        <LockKeyholeIcon className="size-4 ml-1" />
-                      )}
-                    </Button>
-                  </Link>
-                )}
+                <Button
+                  onClick={handleReadChapter}
+                  disabled={
+                    !chapterNumberInput ||
+                    parseInt(chapterNumberInput, 10) < 1 ||
+                    parseInt(chapterNumberInput, 10) > pagination.totalChapters
+                  }
+                  className="rounded bg-accent hover:bg-accent/80 font-bold py-3 text-black disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Read
+                </Button>
               </div>
 
               {/* Chapter List */}
@@ -484,8 +471,8 @@ export default function NovelDetailsComponent() {
                           </div>
                           <div className="flex-1">
                             <h3 className="font-semibold text-foreground group-hover:text-primary transition">
-                              {chapter.title ||
-                                `Chapter ${chapter.chapterNumber}`}
+                              Chapter {chapter.chapterNumber}
+                              {chapter.title && `: ${chapter.title}`}
                             </h3>
                             <p className="text-sm text-muted-foreground">
                               {formatDate(chapter.publishDate)}

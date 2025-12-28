@@ -107,3 +107,44 @@ export async function getChapterBySlugAction(
     data: response.data,
   } as const;
 }
+
+export async function rateSeriesAction(seriesId: string, rating: number) {
+  const cookieHeader = await getCookieHeader();
+  const response = await apiClientManager.rateSeries(
+    seriesId,
+    rating,
+    cookieHeader
+  );
+
+  if (!response.success) {
+    return {
+      success: false,
+      error: response.error.message,
+    } as const;
+  }
+
+  return {
+    success: true,
+    data: response.data,
+  } as const;
+}
+
+export async function getUserRatingAction(seriesId: string) {
+  const cookieHeader = await getCookieHeader();
+  const response = await apiClientManager.getUserRating(
+    seriesId,
+    cookieHeader
+  );
+
+  if (!response.success) {
+    return {
+      success: false,
+      error: response.error.message,
+    } as const;
+  }
+
+  return {
+    success: true,
+    data: response.data,
+  } as const;
+}
