@@ -39,7 +39,7 @@ const navigationLinks = [
   },
   {
     title: "Contact us",
-    href: "mailto:support@apexnovels.com",
+    href: "mailto:mythoriatales@yahoo.com",
   },
 ];
 const menuVariants = {

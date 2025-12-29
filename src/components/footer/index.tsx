@@ -40,7 +40,7 @@ export default function ApplicationFooter() {
               DMCA
             </Link>
             <Link
-              href="https://discord.gg/ztHauT2j"
+              href="https://discord.gg/HxKaU5j8qU"
               className="text-muted-foreground hover:text-accent transition-colors text-sm"
             >
               Discord

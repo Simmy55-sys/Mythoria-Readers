@@ -58,7 +58,9 @@ export default function DMCAPage() {
               Users may not upload, submit, or distribute content that:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-              <li>Violates applicable copyright or intellectual property laws</li>
+              <li>
+                Violates applicable copyright or intellectual property laws
+              </li>
               <li>Is unauthorized, stolen, or improperly sourced</li>
               <li>Contains explicit sexual material involving minors</li>
               <li>Promotes violence, hatred, or illegal activities</li>
@@ -109,8 +111,8 @@ export default function DMCAPage() {
                 law.
               </li>
               <li>
-                Mythoria reserves the right to modify coin pricing, availability,
-                or usage at any time.
+                Mythoria reserves the right to modify coin pricing,
+                availability, or usage at any time.
               </li>
             </ul>
           </section>
@@ -140,10 +142,10 @@ export default function DMCAPage() {
             <p className="text-muted-foreground leading-relaxed mt-4">
               To submit a DMCA takedown request, please contact us at:{" "}
               <a
-                href="mailto:support@mythoriatales.com"
+                href="mailto:mythoriatales@yahoo.com"
                 className="text-primary hover:underline"
               >
-                support@mythoriatales.com
+                mythoriatales@yahoo.com
               </a>
             </p>
           </section>
@@ -164,8 +166,8 @@ export default function DMCAPage() {
               10. Limitation of Liability
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              To the fullest extent permitted by law, Mythoria shall not be liable
-              for damages arising from:
+              To the fullest extent permitted by law, Mythoria shall not be
+              liable for damages arising from:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
               <li>Use or inability to use the platform</li>
@@ -194,7 +196,8 @@ export default function DMCAPage() {
             </h2>
             <p className="text-muted-foreground leading-relaxed">
               These Terms shall be governed by and interpreted in accordance
-              with applicable laws, without regard to conflict of law principles.
+              with applicable laws, without regard to conflict of law
+              principles.
             </p>
           </section>
 
@@ -205,10 +208,10 @@ export default function DMCAPage() {
             <p className="text-muted-foreground leading-relaxed">
               For questions or concerns regarding these Terms, please contact:{" "}
               <a
-                href="mailto:support@mythoriatales.com"
+                href="mailto:mythoriatales@yahoo.com"
                 className="text-primary hover:underline"
               >
-                support@mythoriatales.com
+                mythoriatales@yahoo.com
               </a>
             </p>
           </section>
@@ -217,4 +220,3 @@ export default function DMCAPage() {
     </main>
   );
 }
-

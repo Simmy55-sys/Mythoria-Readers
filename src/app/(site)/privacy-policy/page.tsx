@@ -36,7 +36,9 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
               <li>
-                <strong className="text-foreground">Personal information</strong>{" "}
+                <strong className="text-foreground">
+                  Personal information
+                </strong>{" "}
                 (e.g., username, email address, account details)
               </li>
               <li>
@@ -168,7 +170,9 @@ export default function PrivacyPolicyPage() {
                 Request a copy of your personal data
               </li>
               <li>
-                <strong className="text-foreground">Right to rectification</strong>{" "}
+                <strong className="text-foreground">
+                  Right to rectification
+                </strong>{" "}
                 – Request correction of inaccurate or incomplete data
               </li>
               <li>
@@ -189,20 +193,22 @@ export default function PrivacyPolicyPage() {
                 <strong className="text-foreground">
                   Right to data portability
                 </strong>{" "}
-                – Request transfer of your data to another service or to yourself
+                – Request transfer of your data to another service or to
+                yourself
               </li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-4">
               To exercise any of these rights, please contact us at:{" "}
               <a
-                href="mailto:support@mythoriatales.com"
+                href="mailto:mythoriatales@yahoo.com"
                 className="text-primary hover:underline"
               >
-                support@mythoriatales.com
+                mythoriatales@yahoo.com
               </a>
             </p>
             <p className="text-muted-foreground leading-relaxed mt-2">
-              We may request identity verification before processing your request.
+              We may request identity verification before processing your
+              request.
             </p>
           </section>
 
@@ -212,8 +218,8 @@ export default function PrivacyPolicyPage() {
             </h2>
             <p className="text-muted-foreground leading-relaxed">
               Mythoria is not intended for individuals under the age of{" "}
-              <strong>13</strong>. We do not knowingly collect personal data from
-              children.
+              <strong>13</strong>. We do not knowingly collect personal data
+              from children.
             </p>
             <p className="text-muted-foreground leading-relaxed mt-4">
               If we discover that a child under 13 has provided personal
@@ -246,4 +252,3 @@ export default function PrivacyPolicyPage() {
     </main>
   );
 }
-
