@@ -69,6 +69,9 @@ export default function ChapterReaderPage({
 
   const [fontSize, setFontSize] = useState(16);
   const [lineHeight, setLineHeight] = useState(1.8);
+  const [readingTheme, setReadingTheme] = useState<
+    "light" | "light-gray" | "dark-gray" | "dark"
+  >("dark");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -81,6 +84,27 @@ export default function ChapterReaderPage({
 
   const pathname = usePathname();
   const redirect = encodeURIComponent(pathname);
+
+  // Load theme preference from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("reading-theme") as
+      | "light"
+      | "light-gray"
+      | "dark-gray"
+      | "dark"
+      | null;
+    if (
+      savedTheme &&
+      ["light", "light-gray", "dark-gray", "dark"].includes(savedTheme)
+    ) {
+      setReadingTheme(savedTheme);
+    }
+  }, []);
+
+  // Save theme preference to localStorage
+  useEffect(() => {
+    localStorage.setItem("reading-theme", readingTheme);
+  }, [readingTheme]);
 
   useEffect(() => {
     const fetchChapter = async () => {
@@ -274,7 +298,7 @@ export default function ChapterReaderPage({
         {/* Reading Controls */}
         {showMenu && (
           <div className="mb-8 p-6 bg-card rounded-lg border border-border">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               <div>
                 <label className="text-sm text-muted-foreground mb-2 block">
                   Font Size
@@ -313,6 +337,30 @@ export default function ChapterReaderPage({
                     <SelectItem value={String(1.6)}>Normal</SelectItem>
                     <SelectItem value={String(1.8)}>Relaxed</SelectItem>
                     <SelectItem value={String(2)}>Loose</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">
+                  Theme
+                </label>
+                <Select
+                  value={readingTheme}
+                  onValueChange={(value) =>
+                    setReadingTheme(
+                      value as "light" | "light-gray" | "dark-gray" | "dark"
+                    )
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="light">☀️ Light</SelectItem>
+                    <SelectItem value="light-gray">🌤️ Light Gray</SelectItem>
+                    <SelectItem value="dark-gray">🌙 Dark Gray</SelectItem>
+                    <SelectItem value="dark">🌑 Dark</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -457,7 +505,15 @@ export default function ChapterReaderPage({
         {/* Chapter Content */}
         {!isPremiumLocked && (
           <article
-            className="prose prose-invert max-w-none mb-12 transition-all"
+            className={`prose max-w-none mb-12 transition-all duration-300 rounded-lg p-6 md:p-8 ${
+              readingTheme === "light"
+                ? "bg-white text-gray-900 prose-headings:text-gray-900 prose-p:text-gray-800 prose-strong:text-gray-900"
+                : readingTheme === "light-gray"
+                ? "bg-gray-100 text-gray-800 prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900"
+                : readingTheme === "dark-gray"
+                ? "bg-gray-800 text-gray-200 prose-headings:text-gray-100 prose-p:text-gray-300 prose-strong:text-gray-100 prose-invert"
+                : "bg-gray-950 text-gray-100 prose-headings:text-gray-50 prose-p:text-gray-200 prose-strong:text-gray-50 prose-invert"
+            }`}
             style={{
               fontSize: `${fontSize}px`,
               lineHeight: lineHeight,
@@ -466,7 +522,15 @@ export default function ChapterReaderPage({
             {chapter.content ? (
               <MagicRenderer content={chapter.content} />
             ) : (
-              <p className="text-muted-foreground">No content available.</p>
+              <p
+                className={
+                  readingTheme === "light" || readingTheme === "light-gray"
+                    ? "text-gray-600"
+                    : "text-muted-foreground"
+                }
+              >
+                No content available.
+              </p>
             )}
           </article>
         )}
