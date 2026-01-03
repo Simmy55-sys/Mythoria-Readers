@@ -169,7 +169,7 @@ export default function Hero() {
             <img
               src={currentChapter.series.featuredImage || "/placeholder.svg"}
               alt={currentChapter.series.title}
-              className="w-full h-full object-cover rounded-lg md:rounded-lg"
+              className="w-full h-full object-cover max-sm:object-contain rounded-lg md:rounded-lg"
             />
             <div className="absolute inset-0 bg-linear-to-b md:bg-linear-to-l from-transparent via-transparent to-background md:to-background rounded-lg" />
           </div>

@@ -87,6 +87,9 @@ export interface SeriesDetailsResponse {
   categories: string[];
   averageRating: number;
   totalRatings: number;
+  totalViews: number;
+  totalBookmarks: number;
+  totalLikes: number;
   totalChapters: number;
 }
 
@@ -170,6 +173,17 @@ export interface BookmarkResponse {
 
 export interface BookmarkCheckResponse {
   isBookmarked: boolean;
+}
+
+export interface LikeResponse {
+  id: string;
+  userId: string;
+  seriesId: string;
+  likedAt: string;
+}
+
+export interface LikeCheckResponse {
+  isLiked: boolean;
 }
 
 export interface PurchaseChapterResponse {

@@ -16,6 +16,9 @@ import {
   removeBookmarkRoute,
   checkBookmarkRoute,
   getUserBookmarksRoute,
+  likeSeriesRoute,
+  unlikeSeriesRoute,
+  checkLikeRoute,
   purchaseChapterRoute,
   createCoinPurchaseOrderRoute,
   verifyPaymentRoute,
@@ -46,6 +49,8 @@ import {
   CreateCoinPurchaseOrderResponse,
   VerifyPaymentResponse,
   CoinPurchaseResponse,
+  LikeResponse,
+  LikeCheckResponse,
 } from "./types";
 import { User } from "@/utils/auth";
 
@@ -535,6 +540,45 @@ class ApiClient {
     return this.execute<BookmarkResponse[]>({
       method: "GET",
       endpoint: getUserBookmarksRoute,
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+    });
+  }
+
+  /**
+   * Like a series
+   * @param seriesId - Series ID to like
+   * @param cookieHeader - Optional cookie header string for server-side requests
+   */
+  async likeSeries(seriesId: string, cookieHeader?: string) {
+    return this.execute<LikeResponse>({
+      method: "POST",
+      endpoint: likeSeriesRoute(seriesId),
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+    });
+  }
+
+  /**
+   * Unlike a series
+   * @param seriesId - Series ID to unlike
+   * @param cookieHeader - Optional cookie header string for server-side requests
+   */
+  async unlikeSeries(seriesId: string, cookieHeader?: string) {
+    return this.execute<{ message: string }>({
+      method: "DELETE",
+      endpoint: unlikeSeriesRoute(seriesId),
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+    });
+  }
+
+  /**
+   * Check if a series is liked
+   * @param seriesId - Series ID to check
+   * @param cookieHeader - Optional cookie header string for server-side requests
+   */
+  async checkLike(seriesId: string, cookieHeader?: string) {
+    return this.execute<LikeCheckResponse>({
+      method: "GET",
+      endpoint: checkLikeRoute(seriesId),
       headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
     });
   }

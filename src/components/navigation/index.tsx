@@ -158,23 +158,29 @@ export default function Navigation() {
               </Button>
               {isAuthenticated ? (
                 <>
-                  <div className="max-md:hidden flex items-center gap-2 text-sm text-muted-foreground ml-2">
+                  <div className=" flex items-center gap-2 text-sm text-muted-foreground ml-2">
                     <User className="w-4 h-4" />
-                    <span>{user?.username}</span>
+                    <span className="max-md:max-w-40 line-clamp-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                      {user?.username}
+                    </span>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleLogout}
-                    className="max-md:hidden"
+                    className=""
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Logout
                   </Button>
                 </>
               ) : (
-                <Link href={login} className="max-md:hidden">
-                  <Button variant="outline" size="sm">
+                <Link href={login} className="">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="max-md:max-w-40 line-clamp-1 whitespace-nowrap overflow-hidden text-ellipsis"
+                  >
                     Login
                   </Button>
                 </Link>
@@ -238,39 +244,6 @@ export default function Navigation() {
                     </div>
                   );
                 })}
-                {isAuthenticated ? (
-                  <div className="overflow-hidden mt-auto">
-                    <motion.div
-                      // @ts-ignore
-                      variants={mobileLinkVariants}
-                      className="text-2xl uppercase text-accent-foreground text-center"
-                    >
-                      <div className="flex flex-col items-center gap-2">
-                        <span>{user?.username}</span>
-                        <Button
-                          variant="outline"
-                          onClick={handleLogout}
-                          className="text-sm bg-transparent"
-                        >
-                          <LogOut className="w-4 h-4 mr-2" />
-                          Logout
-                        </Button>
-                      </div>
-                    </motion.div>
-                  </div>
-                ) : (
-                  <div className="overflow-hidden mt-auto">
-                    <motion.div
-                      // @ts-ignore
-                      variants={mobileLinkVariants}
-                      className="text-xl uppercase text-accent-foreground text-center"
-                    >
-                      <Link className="font-medium" href={login}>
-                        Login
-                      </Link>
-                    </motion.div>
-                  </div>
-                )}
               </motion.div>
             </div>
           </motion.div>

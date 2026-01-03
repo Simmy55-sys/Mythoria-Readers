@@ -15,7 +15,6 @@ import {
   Eye,
   Heart,
   Lock,
-  LockKeyholeIcon,
   Play,
   Share2Icon,
 } from "lucide-react";
@@ -25,6 +24,11 @@ import {
   removeBookmarkAction,
   checkBookmarkAction,
 } from "@/server-actions/bookmark";
+import {
+  likeSeriesAction,
+  unlikeSeriesAction,
+  checkLikeAction,
+} from "@/server-actions/like";
 import {
   SeriesDetailsResponse,
   SeriesDetailsChapterResponse,
@@ -37,6 +41,7 @@ import { login } from "@/routes/client";
 import CommentSection from "@/components/comment/comment-section";
 import { toast } from "sonner";
 import ReviewSection from "./review-section";
+
 // Date formatting helper
 const formatDate = (date: string | Date) => {
   const dateObj = typeof date === "string" ? new Date(date) : date;
@@ -67,6 +72,8 @@ export default function NovelDetailsComponent() {
   const [error, setError] = useState<string | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
   const [chapterNumberInput, setChapterNumberInput] = useState<string>("");
   const [pagination, setPagination] = useState({
     totalChapters: 0,
@@ -97,13 +104,18 @@ export default function NovelDetailsComponent() {
           totalPages: result.data.totalPages,
         });
 
-        // Check bookmark status if authenticated
+        // Check bookmark and like status if authenticated
         if (isAuthenticated) {
           const bookmarkResult = await checkBookmarkAction(
             result.data.series.id
           );
           if (bookmarkResult.success && bookmarkResult.data) {
             setIsBookmarked(bookmarkResult.data.isBookmarked);
+          }
+
+          const likeResult = await checkLikeAction(result.data.series.id);
+          if (likeResult.success && likeResult.data) {
+            setIsLiked(likeResult.data.isLiked);
           }
         }
       } else {
@@ -148,17 +160,53 @@ export default function NovelDetailsComponent() {
         const result = await removeBookmarkAction(series.id);
         if (result.success) {
           setIsBookmarked(false);
+          // Refresh series data to update bookmark count
+          fetchSeriesDetails();
         }
       } else {
         const result = await bookmarkSeriesAction(series.id);
         if (result.success) {
           setIsBookmarked(true);
+          // Refresh series data to update bookmark count
+          fetchSeriesDetails();
         }
       }
     } catch (err: any) {
       console.error("Error toggling bookmark:", err);
     } finally {
       setIsBookmarking(false);
+    }
+  };
+
+  const handleLikeToggle = async () => {
+    if (!isAuthenticated) {
+      router.push(login + "?redirect=" + redirect);
+      return;
+    }
+
+    if (!series) return;
+
+    setIsLiking(true);
+    try {
+      if (isLiked) {
+        const result = await unlikeSeriesAction(series.id);
+        if (result.success) {
+          setIsLiked(false);
+          // Refresh series data to update like count
+          fetchSeriesDetails();
+        }
+      } else {
+        const result = await likeSeriesAction(series.id);
+        if (result.success) {
+          setIsLiked(true);
+          // Refresh series data to update like count
+          fetchSeriesDetails();
+        }
+      }
+    } catch (err: any) {
+      console.error("Error toggling like:", err);
+    } finally {
+      setIsLiking(false);
     }
   };
 
@@ -232,21 +280,45 @@ export default function NovelDetailsComponent() {
                   <Eye className="w-5 h-5 text-primary" />
                   <div>
                     <p className="text-muted-foreground">Views</p>
-                    <p className="font-semibold">2.5M</p>
+                    <p className="font-semibold">
+                      {series.totalViews
+                        ? series.totalViews >= 1000000
+                          ? `${(series.totalViews / 1000000).toFixed(1)}M`
+                          : series.totalViews >= 1000
+                          ? `${(series.totalViews / 1000).toFixed(1)}K`
+                          : series.totalViews.toLocaleString()
+                        : "0"}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <Heart className="w-5 h-5 text-primary" />
                   <div>
                     <p className="text-muted-foreground">Likes</p>
-                    <p className="font-semibold">89K</p>
+                    <p className="font-semibold">
+                      {series.totalLikes
+                        ? series.totalLikes >= 1000000
+                          ? `${(series.totalLikes / 1000000).toFixed(1)}M`
+                          : series.totalLikes >= 1000
+                          ? `${(series.totalLikes / 1000).toFixed(1)}K`
+                          : series.totalLikes.toLocaleString()
+                        : "0"}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <BookmarkIcon className="w-5 h-5 text-primary" />
                   <div>
                     <p className="text-muted-foreground">Bookmarks</p>
-                    <p className="font-semibold">125K</p>
+                    <p className="font-semibold">
+                      {series.totalBookmarks
+                        ? series.totalBookmarks >= 1000000
+                          ? `${(series.totalBookmarks / 1000000).toFixed(1)}M`
+                          : series.totalBookmarks >= 1000
+                          ? `${(series.totalBookmarks / 1000).toFixed(1)}K`
+                          : series.totalBookmarks.toLocaleString()
+                        : "0"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -266,6 +338,20 @@ export default function NovelDetailsComponent() {
                     </button>
                   </Link>
                 )}
+                <button
+                  onClick={handleLikeToggle}
+                  disabled={isLiking}
+                  className={`w-full bg-card hover:bg-card/80 border ${
+                    isLiked
+                      ? "border-primary text-primary"
+                      : "border-primary/20 text-foreground"
+                  } font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  <Heart
+                    className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`}
+                  />
+                  {isLiking ? "Loading..." : isLiked ? "Liked" : "Like"}
+                </button>
                 <button
                   onClick={handleBookmarkToggle}
                   disabled={isBookmarking}
