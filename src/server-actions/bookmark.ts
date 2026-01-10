@@ -2,7 +2,6 @@
 
 import { cookies } from "next/headers";
 import apiClientManager from "@/api/interface";
-import { BookmarkResponse, BookmarkCheckResponse } from "@/api/types";
 
 /**
  * Get cookie header string from Next.js cookies

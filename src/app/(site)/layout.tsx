@@ -2,6 +2,7 @@ import "../globals.css";
 import ApplicationFooter from "@/components/footer";
 import Navigation from "@/components/navigation";
 import { AuthProvider } from "@/contexts/auth-context";
+import BannerComponent from "@/components/banner";
 
 export default function SiteLayout({
   children,
@@ -10,6 +11,7 @@ export default function SiteLayout({
 }>) {
   return (
     <AuthProvider>
+      <BannerComponent />
       <Navigation />
       {children}
       <ApplicationFooter />

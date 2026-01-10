@@ -736,6 +736,25 @@ class ApiClient {
       headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
     });
   }
+
+  /**
+   * Get active announcements for the public site
+   */
+  async getActiveAnnouncements() {
+    return this.execute<
+      Array<{
+        id: string;
+        title: string;
+        content: string;
+        type: "info" | "warning" | "success" | "error";
+        startDate: string;
+        endDate: string | null;
+      }>
+    >({
+      method: "GET",
+      endpoint: "/announcement/public/active",
+    });
+  }
 }
 
 const apiClientManager = new ApiClient();
