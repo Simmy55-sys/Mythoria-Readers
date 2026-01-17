@@ -12,6 +12,7 @@ interface PasswordInputProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   disabled?: boolean;
   required?: boolean;
+  placeholder?: string;
 }
 
 const PasswordInput = ({
@@ -19,6 +20,7 @@ const PasswordInput = ({
   onChange,
   disabled = false,
   required = false,
+  placeholder = "Password",
 }: PasswordInputProps) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -30,7 +32,7 @@ const PasswordInput = ({
         <Input
           id={id}
           type={isVisible ? "text" : "password"}
-          placeholder="Password"
+          placeholder={placeholder}
           className="pr-9 bg-[#27272A] border-none"
           value={value}
           onChange={onChange}

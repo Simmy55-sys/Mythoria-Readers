@@ -39,3 +39,10 @@ export const deleteCommentRoute = (commentId: string) =>
 export const rateSeriesRoute = (seriesId: string) => `/series/${seriesId}/rate`;
 export const getUserRatingRoute = (seriesId: string) =>
   `/series/${seriesId}/my-rating`;
+export const readerDiscordAuthenticateRoute =
+  "/account/reader/discord/authenticate";
+export const readerGoogleAuthenticateRoute =
+  "/account/reader/google/authenticate";
+export const forgotPasswordRoute = "/account/forgot-password";
+export const resetPasswordRoute = "/account/reset-password";
+export const validateResetTokenRoute = "/account/validate-reset-token";

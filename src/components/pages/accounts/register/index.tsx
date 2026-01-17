@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FaDiscord, FaGoogle } from "react-icons/fa";
+import { FaGoogle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -13,17 +13,41 @@ import PasswordInput from "../password-input";
 import { Field, FieldSeparator } from "@/components/ui/field";
 import { registerAction } from "@/server-actions/auth";
 import { Spinner } from "@/components/ui/spinner";
+import DiscordAuthButton from "../utility/discord-auth-button";
+import GoogleAuthButton from "../utility/google-auth-button";
 
 export default function RegisterAccount() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<{
+    state: boolean;
+    src: "email" | "discord" | "google";
+  }>({
+    state: false,
+    src: "email",
+  });
   const [error, setError] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
+  const errorParam = searchParams.get("error");
+
+  // Handle error from OAuth callback
+  useEffect(() => {
+    if (errorParam) {
+      const decodedError = decodeURIComponent(errorParam);
+      setError(decodedError);
+      // Clean up the URL by removing the error parameter
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      newSearchParams.delete("error");
+      const newUrl = `${window.location.pathname}${
+        newSearchParams.toString() ? `?${newSearchParams.toString()}` : ""
+      }`;
+      router.replace(newUrl);
+    }
+  }, [errorParam, searchParams, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +59,7 @@ export default function RegisterAccount() {
       return;
     }
 
-    setIsLoading(true);
+    setIsLoading({ state: true, src: "email" });
 
     try {
       const result = await registerAction({ username, email, password });
@@ -54,7 +78,7 @@ export default function RegisterAccount() {
       setError(err.message || "An unexpected error occurred");
       console.error("Registration error:", err);
     } finally {
-      setIsLoading(false);
+      setIsLoading({ state: false, src: "email" });
     }
   };
 
@@ -95,30 +119,32 @@ export default function RegisterAccount() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <Input
             type="text"
+            autoComplete="username"
             placeholder="What is your username?"
             className="h-10 bg-[#27272A] border-none"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
-            disabled={isLoading}
+            disabled={isLoading.state}
           />
           <Input
             type="email"
+            autoComplete="email"
             placeholder="Enter your email"
             className="h-10 bg-[#27272A] border-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            disabled={isLoading}
+            disabled={isLoading.state}
           />
           <PasswordInput
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
+            disabled={isLoading.state}
             required
           />
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
+          <Button type="submit" className="w-full" disabled={isLoading.state}>
+            {isLoading.state && isLoading.src === "email" ? (
               <>
                 <Spinner className="mr-2" />
                 Creating account...
@@ -131,24 +157,16 @@ export default function RegisterAccount() {
 
         <FieldSeparator>Or</FieldSeparator>
         <Field className="grid gap-4 sm:grid-cols-2">
-          <Button
-            variant="outline"
-            type="button"
-            className="bg-[#27272A] text-xs"
-            disabled={isLoading}
-          >
-            <FaGoogle className="size-4" />
-            Continue with Google
-          </Button>
-          <Button
-            variant="outline"
-            type="button"
-            className="bg-[#27272A] text-xs"
-            disabled={isLoading}
-          >
-            <FaDiscord className="size-4" />
-            Continue with Discord
-          </Button>
+          <GoogleAuthButton
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+            action="register"
+          />
+          <DiscordAuthButton
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+            action="register"
+          />
         </Field>
 
         <p className="text-muted-foreground text-center">

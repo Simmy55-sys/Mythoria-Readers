@@ -30,6 +30,9 @@ import {
   deleteCommentRoute,
   rateSeriesRoute,
   getUserRatingRoute,
+  forgotPasswordRoute,
+  resetPasswordRoute,
+  validateResetTokenRoute,
 } from "@/routes/server";
 import {
   LatestChapterResponse,
@@ -473,6 +476,38 @@ class ApiClient {
     return this.execute<{ message: string }>({
       method: "POST",
       endpoint: logoutRoute,
+    });
+  }
+
+  /**
+   * Request password reset
+   */
+  async forgotPassword(email: string) {
+    return this.execute<{ message: string }>({
+      method: "POST",
+      endpoint: forgotPasswordRoute,
+      data: { email },
+    });
+  }
+
+  /**
+   * Reset password with token
+   */
+  async resetPassword(token: string, newPassword: string) {
+    return this.execute<{ message: string }>({
+      method: "POST",
+      endpoint: resetPasswordRoute,
+      data: { token, newPassword },
+    });
+  }
+
+  /**
+   * Validate reset token
+   */
+  async validateResetToken(token: string) {
+    return this.execute<{ valid: boolean; message?: string }>({
+      method: "GET",
+      endpoint: `${validateResetTokenRoute}?token=${encodeURIComponent(token)}`,
     });
   }
 
