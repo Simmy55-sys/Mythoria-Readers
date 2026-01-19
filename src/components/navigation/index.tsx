@@ -34,8 +34,13 @@ const navigationLinks = [
     href: purchase,
   },
   {
-    title: "My-novels",
+    title: "My novels",
     href: reading,
+  },
+  {
+    title: "Join our Discord",
+    href: "https://discord.gg/HxKaU5j8qU",
+    target: "_blank",
   },
   {
     title: "Contact us",
@@ -119,25 +124,49 @@ export default function Navigation() {
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-8 px-4 py-7 sm:px-6">
             <div className="text-muted-foreground flex flex-1 items-center gap-8 font-medium md:justify-center lg:gap-16">
               {navigationLinks.slice(0, 2).map((link) => (
-                <Link
-                  key={link.title}
-                  href={link.href}
-                  className="hover:text-primary max-md:hidden"
-                >
-                  {link.title}
-                </Link>
+                <>
+                  {
+                    link.target? <Link
+                    key={link.title}
+                    href={link.href}
+                    className="hover:text-primary max-md:hidden"
+                    target={link.target}
+                  >
+                    {link.title}
+                  </Link> : <Link
+                    key={link.title}
+                    href={link.href}
+                    className="hover:text-primary max-md:hidden"
+                  >
+                    {link.title}
+                    {link.target && <Link href={link.href} target={link.target} />}
+                  </Link>
+                  }
+                </>
               ))}
 
               <Logo className="size-15" />
 
               {navigationLinks.slice(2).map((link) => (
-                <Link
+                <>
+                {
+                  link.target? <Link
+                  key={link.title}
+                  href={link.href}
+                  className="hover:text-primary max-md:hidden"
+                  target={link.target}
+                >
+                  {link.title}
+                </Link> : <Link
                   key={link.title}
                   href={link.href}
                   className="hover:text-primary max-md:hidden"
                 >
                   {link.title}
+                  {link.target && <Link href={link.href} target={link.target} />}
                 </Link>
+                }
+              </>
               ))}
             </div>
 
@@ -229,7 +258,7 @@ export default function Navigation() {
                 exit="initial"
                 className="flex flex-col h-full justify-center font-poly items-center space-y-2.5 mt-[25%]"
               >
-                {navigationLinks.map(({ title, href }) => {
+                {navigationLinks.map(({ title, href, target }) => {
                   return (
                     <div key={title} className="overflow-hidden">
                       <motion.div
@@ -239,7 +268,11 @@ export default function Navigation() {
                         // animate="open"
                         className="text-4xl uppercase text-accent-foreground text-center"
                       >
-                        <Link href={href}>{title}</Link>
+                        {
+                          target ? 
+                          <Link href={href} target={target}>{title}</Link> : 
+                          <Link href={href}>{title}</Link>
+                        }
                       </motion.div>
                     </div>
                   );
