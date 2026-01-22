@@ -1,5 +1,105 @@
+import React from "react";
+
 interface Props {
   content: string;
+}
+
+// Parse markdown-style formatting (**bold** and *italic*) and return React elements
+// Recursively handles nested formatting
+function parseFormattedText(
+  text: string,
+  keyPrefix: string = ""
+): React.ReactNode {
+  if (!text) return text;
+
+  const parts: React.ReactNode[] = [];
+
+  // Match **bold** (greedy to handle nested cases)
+  const boldRegex = /\*\*([^*]+(?:\*[^*]+)*)\*\*/g;
+  // Match *italic* (but not **bold**)
+  const italicRegex = /(?<!\*)\*([^*]+)\*(?!\*)/g;
+
+  // First, find all bold and italic matches
+  const matches: Array<{
+    start: number;
+    end: number;
+    type: "bold" | "italic";
+    content: string;
+  }> = [];
+
+  let match;
+  while ((match = boldRegex.exec(text)) !== null) {
+    matches.push({
+      start: match.index,
+      end: match.index + match[0].length,
+      type: "bold",
+      content: match[1],
+    });
+  }
+
+  while ((match = italicRegex.exec(text)) !== null) {
+    // Check if this italic match overlaps with a bold match
+    const overlapsBold = matches.some(
+      (m) =>
+        m.type === "bold" && match!.index >= m.start && match!.index < m.end
+    );
+
+    if (!overlapsBold) {
+      matches.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        type: "italic",
+        content: match[1],
+      });
+    }
+  }
+
+  // Sort matches by start position
+  matches.sort((a, b) => a.start - b.start);
+
+  // Build React elements
+  let currentIndex = 0;
+  let keyCounter = 0;
+  matches.forEach((match) => {
+    // Add text before this match
+    if (match.start > currentIndex) {
+      const beforeText = text.substring(currentIndex, match.start);
+      if (beforeText) {
+        parts.push(beforeText);
+      }
+    }
+
+    // Recursively parse the content to handle nested formatting
+    const parsedContent = parseFormattedText(
+      match.content,
+      `${keyPrefix}-${keyCounter++}`
+    );
+
+    // Add formatted text
+    if (match.type === "bold") {
+      parts.push(
+        <strong key={`${keyPrefix}-bold-${match.start}`}>
+          {parsedContent}
+        </strong>
+      );
+    } else {
+      parts.push(
+        <em key={`${keyPrefix}-italic-${match.start}`}>{parsedContent}</em>
+      );
+    }
+
+    currentIndex = match.end;
+  });
+
+  // Add remaining text
+  if (currentIndex < text.length) {
+    const remainingText = text.substring(currentIndex);
+    if (remainingText) {
+      parts.push(remainingText);
+    }
+  }
+
+  return parts.length > 0 ? <>{parts}</> : text;
 }
 
 // Generate a consistent color for a speaker based on their name
@@ -149,7 +249,10 @@ export default function MagicRenderer({ content }: Props) {
   let conversationIndex = 0;
 
   return (
-    <div className="space-y-4 leading-relaxed" style={{ fontSize: "inherit", lineHeight: "inherit" }}>
+    <div
+      className="space-y-4 leading-relaxed"
+      style={{ fontSize: "inherit", lineHeight: "inherit" }}
+    >
       {lines.map((line, index) => {
         // Check if this line contains a conversation placeholder
         if (line.includes("__CONVERSATION_")) {
@@ -260,7 +363,7 @@ export default function MagicRenderer({ content }: Props) {
                             className={`px-5 py-3 rounded-2xl shadow-lg ${speakerColor.bubble} border-2 ${speakerColor.border} rounded-tl-sm`}
                           >
                             <p className="text-white leading-relaxed text-base">
-                              {dialogue.text}
+                              {parseFormattedText(dialogue.text)}
                             </p>
                           </div>
 
@@ -748,7 +851,7 @@ export default function MagicRenderer({ content }: Props) {
                     <div className="absolute -left-[13px] top-6 w-0 h-0 border-t-[12px] border-t-transparent border-b-[12px] border-b-transparent border-r-[12px] border-r-blue-500/50"></div>
 
                     <p className="text-white leading-relaxed text-base relative z-10">
-                      {text}
+                      {parseFormattedText(text)}
                     </p>
                   </div>
                 </div>
@@ -758,7 +861,7 @@ export default function MagicRenderer({ content }: Props) {
         }
 
         // Regular text line
-        return <p key={index}>{line}</p>;
+        return <p key={index}>{parseFormattedText(line)}</p>;
       })}
     </div>
   );
