@@ -5,7 +5,7 @@ import Logo from "@/assets/logo";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CgClose, CgMenuLeft } from "react-icons/cg";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   account,
@@ -124,49 +124,57 @@ export default function Navigation() {
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-8 px-4 py-7 sm:px-6">
             <div className="text-muted-foreground flex flex-1 items-center gap-8 font-medium md:justify-center lg:gap-16">
               {navigationLinks.slice(0, 2).map((link) => (
-                <>
-                  {
-                    link.target? <Link
-                    key={link.title}
-                    href={link.href}
-                    className="hover:text-primary max-md:hidden"
-                    target={link.target}
-                  >
-                    {link.title}
-                  </Link> : <Link
-                    key={link.title}
-                    href={link.href}
-                    className="hover:text-primary max-md:hidden"
-                  >
-                    {link.title}
-                    {link.target && <Link href={link.href} target={link.target} />}
-                  </Link>
-                  }
-                </>
+                <React.Fragment key={link.title}>
+                  {link.target ? (
+                    <Link
+                      key={link.title}
+                      href={link.href}
+                      className="hover:text-primary max-md:hidden"
+                      target={link.target}
+                    >
+                      {link.title}
+                    </Link>
+                  ) : (
+                    <Link
+                      key={link.title}
+                      href={link.href}
+                      className="hover:text-primary max-md:hidden"
+                    >
+                      {link.title}
+                      {link.target && (
+                        <Link href={link.href} target={link.target} />
+                      )}
+                    </Link>
+                  )}
+                </React.Fragment>
               ))}
 
               <Logo className="size-15" />
 
               {navigationLinks.slice(2).map((link) => (
-                <>
-                {
-                  link.target? <Link
-                  key={link.title}
-                  href={link.href}
-                  className="hover:text-primary max-md:hidden"
-                  target={link.target}
-                >
-                  {link.title}
-                </Link> : <Link
-                  key={link.title}
-                  href={link.href}
-                  className="hover:text-primary max-md:hidden"
-                >
-                  {link.title}
-                  {link.target && <Link href={link.href} target={link.target} />}
-                </Link>
-                }
-              </>
+                <React.Fragment key={link.title}>
+                  {link.target ? (
+                    <Link
+                      key={link.title}
+                      href={link.href}
+                      className="hover:text-primary max-md:hidden"
+                      target={link.target}
+                    >
+                      {link.title}
+                    </Link>
+                  ) : (
+                    <Link
+                      key={link.title}
+                      href={link.href}
+                      className="hover:text-primary max-md:hidden"
+                    >
+                      {link.title}
+                      {link.target && (
+                        <Link href={link.href} target={link.target} />
+                      )}
+                    </Link>
+                  )}
+                </React.Fragment>
               ))}
             </div>
 
@@ -268,11 +276,13 @@ export default function Navigation() {
                         // animate="open"
                         className="text-4xl uppercase text-accent-foreground text-center"
                       >
-                        {
-                          target ? 
-                          <Link href={href} target={target}>{title}</Link> : 
+                        {target ? (
+                          <Link href={href} target={target}>
+                            {title}
+                          </Link>
+                        ) : (
                           <Link href={href}>{title}</Link>
-                        }
+                        )}
                       </motion.div>
                     </div>
                   );
