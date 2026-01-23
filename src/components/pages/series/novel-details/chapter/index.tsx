@@ -520,7 +520,10 @@ export default function ChapterReaderPage({
             }}
           >
             {chapter.content ? (
-              <MagicRenderer content={chapter.content} />
+              <MagicRenderer
+                content={chapter.content}
+                readingTheme={readingTheme}
+              />
             ) : (
               <p
                 className={

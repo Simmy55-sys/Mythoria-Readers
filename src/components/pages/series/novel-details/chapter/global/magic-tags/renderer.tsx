@@ -2,6 +2,7 @@ import React from "react";
 
 interface Props {
   content: string;
+  readingTheme?: "light" | "light-gray" | "dark-gray" | "dark";
 }
 
 // Parse markdown-style formatting (**bold** and *italic*) and return React elements
@@ -189,7 +190,10 @@ function getSpeakerColor(speaker: string): {
   return colors[colorIndex];
 }
 
-export default function MagicRenderer({ content }: Props) {
+export default function MagicRenderer({
+  content,
+  readingTheme = "dark",
+}: Props) {
   // First, extract and process conversations (which can span multiple lines)
   const conversationRegex =
     /\[conversation\s+([^\]]+)\]([\s\S]*?)\[\/conversation\]/gi;
@@ -259,11 +263,13 @@ export default function MagicRenderer({ content }: Props) {
         if (imageMatch) {
           const alt = imageMatch[1] || "";
           const url = imageMatch[2];
-          
+
           // Check if there's text before or after the image
           const beforeImage = line.substring(0, imageMatch.index || 0).trim();
-          const afterImage = line.substring((imageMatch.index || 0) + imageMatch[0].length).trim();
-          
+          const afterImage = line
+            .substring((imageMatch.index || 0) + imageMatch[0].length)
+            .trim();
+
           return (
             <div key={index} className="my-6">
               {beforeImage && (
@@ -429,7 +435,11 @@ export default function MagicRenderer({ content }: Props) {
           return (
             <div
               key={index}
-              className="bg-linear-to-r from-amber-500/20 to-amber-400/10 border border-amber-500/30 text-amber-300 px-4 py-3 rounded-xl font-semibold uppercase tracking-wide drop-shadow glow animate-fade-in"
+              className={`bg-linear-to-r from-amber-500/20 to-amber-400/10 border border-amber-500/30 ${
+                readingTheme === "light" || readingTheme === "light-gray"
+                  ? "text-amber-800"
+                  : "text-amber-300"
+              } px-4 py-3 rounded-xl font-semibold uppercase tracking-wide drop-shadow glow animate-fade-in`}
             >
               ⚙️ {text}
             </div>
