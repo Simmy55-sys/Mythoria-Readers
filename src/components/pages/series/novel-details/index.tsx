@@ -327,9 +327,10 @@ export default function NovelDetailsComponent() {
               <div className="space-y-3">
                 {chapters.length > 0 && (
                   <Link
-                    href={`${allSeries}/${series.slug}/chapter/${
-                      chapters[chapters.length - 1].chapterNumber
-                    }`}
+                    // href={`${allSeries}/${series.slug}/chapter/${
+                    //   chapters[chapters.length - 1].chapterNumber
+                    // }`}
+                    href={`${allSeries}/${series.slug}/chapter/1`}
                     className="block"
                   >
                     <button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition">

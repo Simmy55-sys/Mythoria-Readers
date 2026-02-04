@@ -1,4 +1,5 @@
 import "./globals.css";
+import NextTopLoader from "nextjs-toploader";
 import { cormorant, satoshi } from "./font";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -17,6 +18,7 @@ export default function RootLayout({
       <body
         className={`${cormorant.variable} ${satoshi.variable} font-body antialiased`}
       >
+        <NextTopLoader />
         {children}
         <Toaster position="top-right" />
       </body>

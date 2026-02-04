@@ -54,7 +54,7 @@ export default function LatestNovels() {
       setLoading(true);
       setError(null);
       try {
-        const result = await getLatestSeriesAction(5);
+        const result = await getLatestSeriesAction(10);
         if (result.success && result.data) {
           setNovels(result.data);
         } else {
