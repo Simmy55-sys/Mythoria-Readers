@@ -93,13 +93,10 @@ export default function PurchaseCoinsComponent() {
         return;
       }
 
-      // Redirect to PayPal approval URL
+      // Redirect to PayPal approval URL (same tab)
       if (result.data?.approvalUrl) {
-        // Open in new tab
-        window.open(
-          result.data.approvalUrl + `?orderId=${result.data.orderId}`
-          // "_blank"
-        );
+        window.location.href =
+          result.data.approvalUrl + `?orderId=${result.data.orderId}`;
       } else {
         toast.error("Failed to get payment URL", {
           style: {
