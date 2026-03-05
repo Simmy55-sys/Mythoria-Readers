@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAuth } from "@/contexts/auth-context";
 import { createCoinPurchaseOrderAction } from "@/server-actions/payment";
 import { toast } from "sonner";
@@ -96,8 +97,8 @@ export default function PurchaseCoinsComponent() {
       if (result.data?.approvalUrl) {
         // Open in new tab
         window.open(
-          result.data.approvalUrl + `?orderId=${result.data.orderId}`,
-          "_blank"
+          result.data.approvalUrl + `?orderId=${result.data.orderId}`
+          // "_blank"
         );
       } else {
         toast.error("Failed to get payment URL", {
@@ -168,11 +169,13 @@ export default function PurchaseCoinsComponent() {
               className="flex flex-col sm:flex-row justify-between items-center w-full bg-white/10 backdrop-blur-md hover:bg-white/20 p-4 rounded-lg transition-all duration-300 border border-white/20 hover:border-white/40 hover:shadow-lg hover:shadow-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="flex items-center gap-4 mb-4 sm:mb-0 flex-col sm:flex-row">
-                <img
-                  draggable="false"
-                  alt="V-COIN Icon"
-                  className="h-10 sm:h-12 md:h-16"
+                <Image
                   src={plan.icon}
+                  alt={`Plan: ${plan.amount} coins`}
+                  width={64}
+                  height={64}
+                  className="h-10 w-auto sm:h-12 md:h-16 object-contain"
+                  draggable={false}
                 />
                 <div className="text-left">
                   {/* <div className="inline-flex items-center justify-between whitespace-nowrap h-7 text-xs text-yellow-300 bg-yellow-300/20 px-3 py-0.5 rounded-full mb-1">
