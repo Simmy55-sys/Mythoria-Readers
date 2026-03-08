@@ -16,6 +16,9 @@ import {
   removeBookmarkRoute,
   checkBookmarkRoute,
   getUserBookmarksRoute,
+  getLastReadChapterRoute,
+  setLastReadChapterRoute,
+  getOngoingSeriesRoute,
   likeSeriesRoute,
   unlikeSeriesRoute,
   checkLikeRoute,
@@ -54,6 +57,9 @@ import {
   CoinPurchaseResponse,
   LikeResponse,
   LikeCheckResponse,
+  LastReadChapterResponse,
+  SetLastReadChapterResponse,
+  OngoingSeriesItem,
 } from "./types";
 import { User } from "@/utils/auth";
 
@@ -575,6 +581,50 @@ class ApiClient {
     return this.execute<BookmarkResponse[]>({
       method: "GET",
       endpoint: getUserBookmarksRoute,
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+    });
+  }
+
+  /**
+   * Get last read chapter number for a series
+   * @param seriesId - Series ID
+   * @param cookieHeader - Optional cookie header string for server-side requests
+   */
+  async getLastReadChapter(seriesId: string, cookieHeader?: string) {
+    return this.execute<LastReadChapterResponse>({
+      method: "GET",
+      endpoint: getLastReadChapterRoute(seriesId),
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+    });
+  }
+
+  /**
+   * Set last read chapter number for a series
+   * @param seriesId - Series ID
+   * @param chapterNumber - Chapter number
+   * @param cookieHeader - Optional cookie header string for server-side requests
+   */
+  async setLastReadChapter(
+    seriesId: string,
+    chapterNumber: number,
+    cookieHeader?: string
+  ) {
+    return this.execute<SetLastReadChapterResponse>({
+      method: "PUT",
+      endpoint: setLastReadChapterRoute(seriesId),
+      data: { chapterNumber },
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+    });
+  }
+
+  /**
+   * Get ongoing series (reader has read at least 3 chapters)
+   * @param cookieHeader - Optional cookie header string for server-side requests
+   */
+  async getOngoingSeries(cookieHeader?: string) {
+    return this.execute<OngoingSeriesItem[]>({
+      method: "GET",
+      endpoint: getOngoingSeriesRoute,
       headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
     });
   }

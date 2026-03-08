@@ -59,10 +59,11 @@ export default function BookmarkedChaptersCard({
       <div className="flex gap-6 p-6">
         <div className="shrink-0">
           <Image
-            width={300}
-            height={300}
+            width={128}
+            height={176}
             src={series.featuredImage || "/placeholder.svg"}
-            alt={series.title}
+            alt={`Cover of ${series.title}`}
+            sizes="128px"
             className="w-32 h-44 object-cover rounded-lg"
           />
         </div>

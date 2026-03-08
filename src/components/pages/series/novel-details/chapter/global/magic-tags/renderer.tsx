@@ -278,10 +278,11 @@ export default function MagicRenderer({
               <div className="flex justify-center">
                 <img
                   src={url}
-                  alt={alt}
+                  alt={alt || "Inline image"}
                   className="max-w-xs h-auto rounded-lg mx-auto block"
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => {
-                    // Fallback if image fails to load
                     const target = e.target as HTMLImageElement;
                     target.style.display = "none";
                   }}

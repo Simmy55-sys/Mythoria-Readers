@@ -5,8 +5,8 @@ import { FlameIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { getPopularTodaySeriesAction } from "@/server-actions/chapter";
-import { Spinner } from "@/components/ui/spinner";
 import { allSeries } from "@/routes/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PopularSeries {
   id: string;
@@ -14,6 +14,21 @@ interface PopularSeries {
   slug: string;
   featuredImage: string;
   categories: string[];
+}
+
+function PopularTodayCardSkeleton() {
+  return (
+    <div className="group cursor-pointer flex justify-center flex-none md:w-1/4 sm:w-1/3 w-1/2 lg:w-1/5">
+      <div>
+        <div className="w-[190px] h-[254px] max-lg:w-[140px] max-lg:h-[190px] flex relative overflow-hidden rounded-2xl px-5 pt-16 pb-3 cursor-pointer">
+          <Skeleton className="absolute inset-0 w-full h-full rounded-2xl bg-gray-400" />
+        </div>
+
+        <Skeleton className="mt-4 h-4 w-32 bg-gray-400" />
+        <Skeleton className="mt-2 h-3 w-20 bg-gray-400" />
+      </div>
+    </div>
+  );
 }
 
 export default function PopularToday() {
@@ -47,8 +62,19 @@ export default function PopularToday() {
     return (
       <section>
         <div className="max-w-7xl mx-auto px-6 py-16">
-          <div className="flex items-center justify-center py-12">
-            <Spinner />
+          <div className="flex items-center gap-3 mb-8">
+            <FlameIcon size={24} className="text-primary" fill="currentColor" />
+            <h2 className="text-2xl font-bold text-foreground">
+              Popular Today
+            </h2>
+          </div>
+
+          <div>
+            <Carousel>
+              {Array.from({ length: 6 }).map((_, index) => (
+                <PopularTodayCardSkeleton key={index} />
+              ))}
+            </Carousel>
           </div>
         </div>
       </section>
@@ -92,9 +118,10 @@ export default function PopularToday() {
                     {novel.featuredImage ? (
                       <Image
                         src={novel.featuredImage}
-                        height={250}
-                        width={200}
-                        alt={novel.title}
+                        height={254}
+                        width={190}
+                        alt={`Cover of ${novel.title}`}
+                        sizes="(max-width: 1024px) 140px, 190px"
                         className="object-cover absolute inset-0 w-full h-full -z-1"
                       />
                     ) : (

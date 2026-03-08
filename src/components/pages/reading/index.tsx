@@ -1,7 +1,33 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import tabsTriggers from "./tabs/trigger";
 
+const VALID_TAB_VALUES = new Set(tabsTriggers.map((t) => t.value));
+const DEFAULT_TAB = tabsTriggers[0].value;
+
 export default function ReadingNovelsComponent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const tabFromUrl = searchParams.get("tab");
+  const currentTab = useMemo(
+    () => (tabFromUrl && VALID_TAB_VALUES.has(tabFromUrl) ? tabFromUrl : DEFAULT_TAB),
+    [tabFromUrl],
+  );
+
+  const setTab = useCallback(
+    (value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", value);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
   return (
     <main>
       {/* Header */}
@@ -17,7 +43,11 @@ export default function ReadingNovelsComponent() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="w-full">
-          <Tabs defaultValue={tabsTriggers[0].value} className="gap-4 w-full">
+          <Tabs
+            value={currentTab}
+            onValueChange={setTab}
+            className="gap-4 w-full"
+          >
             <TabsList className="h-full bg-[#27272A] w-full max-w-4xl overflow-auto">
               {tabsTriggers.map(({ icon: Icon, name, value }) => (
                 <TabsTrigger

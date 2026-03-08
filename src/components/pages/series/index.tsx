@@ -7,7 +7,17 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getAllSeriesAction } from "@/server-actions/series";
 import { AllSeriesResponse } from "@/api/types";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
+
+function SeriesCardSkeleton() {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <Skeleton className="w-full aspect-3/4 rounded-lg mb-3 bg-gray-400" />
+      <Skeleton className="h-4 w-3/4 mb-2 bg-gray-400" />
+      <Skeleton className="h-3 w-1/2 bg-gray-400" />
+    </div>
+  );
+}
 
 export default function AllSeries() {
   const searchParams = useSearchParams();
@@ -83,8 +93,10 @@ export default function AllSeries() {
     return (
       <div className="max-w-7xl mx-auto px-6 pb-16 py-3">
         <SeriesFilter />
-        <div className="min-h-[360px] flex items-center justify-center mt-10">
-          <Spinner />
+        <div className="min-h-[360px] grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-center mt-10">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <SeriesCardSkeleton key={index} />
+          ))}
         </div>
       </div>
     );

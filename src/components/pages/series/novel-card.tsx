@@ -12,6 +12,14 @@ interface NovelCardProps {
 export default function NovelCard({ series }: NovelCardProps) {
   const latestChapter = series.recentChapters[0];
   const secondChapter = series.recentChapters[1];
+  const statusColor =
+    series.status === "completed"
+      ? "bg-green-500"
+      : series.status === "on-hold"
+      ? "bg-yellow-500"
+      : series.status === "cancelled"
+      ? "bg-red-500"
+      : "bg-indigo-500";
 
   return (
     <div>
@@ -40,8 +48,10 @@ export default function NovelCard({ series }: NovelCardProps) {
           </div>
         </Link>
         <span className="absolute z-1 right-[5px] top-[5px]">
-          <span className="px-2 py-1 rounded-[4px] text-xs font-medium text-white bg-indigo-500/90">
-            {series.novelType}
+          <span
+            className={`px-2 py-1 rounded-[4px] text-xs font-medium text-white ${statusColor}`}
+          >
+            {series.status}
           </span>
         </span>
       </div>

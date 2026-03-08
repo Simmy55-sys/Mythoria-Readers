@@ -6,7 +6,7 @@ import BookmarkedChaptersCard from "./card";
 import { Button } from "@/components/ui/button";
 import { getUserBookmarksAction } from "@/server-actions/bookmark";
 import { BookmarkResponse } from "@/api/types";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { allSeries } from "@/routes/client";
 import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
@@ -72,8 +72,32 @@ export default function BookmarkedChapters() {
 
   if (authLoading || loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Spinner />
+      <div className="grid gap-6 lg:grid-cols-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-lg border border-border overflow-hidden p-6"
+          >
+            <div className="flex gap-6">
+              <Skeleton className="h-44 w-32 shrink-0 rounded-lg bg-muted" />
+              <div className="flex flex-1 flex-col justify-between">
+                <div>
+                  <Skeleton className="h-6 w-3/4 mb-2 bg-muted" />
+                  <Skeleton className="h-4 w-32 mb-4 bg-muted" />
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    <Skeleton className="h-5 w-14 rounded bg-muted" />
+                    <Skeleton className="h-5 w-16 rounded bg-muted" />
+                    <Skeleton className="h-5 w-12 rounded bg-muted" />
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <Skeleton className="h-10 flex-1 rounded-md bg-muted" />
+                  <Skeleton className="h-10 w-32 rounded-md bg-muted" />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

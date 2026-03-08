@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, usePathname } from "next/navigation";
 import {
   ChevronLeft,
@@ -10,6 +10,9 @@ import {
   Menu,
   X,
   Lock,
+  BookOpen,
+  RefreshCw,
+  ScrollText,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -28,6 +31,7 @@ import {
 } from "@/server-actions/bookmark";
 import { purchaseChapterAction } from "@/server-actions/purchase";
 import { ChapterReaderResponse } from "@/api/types";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { allSeries, login, purchase } from "@/routes/client";
 import { useAuth } from "@/contexts/auth-context";
@@ -35,7 +39,10 @@ import { useRouter } from "next/navigation";
 import { PiCoinsThin } from "react-icons/pi";
 import { toast } from "sonner";
 import CommentSection from "@/components/comment/comment-section";
+import { setLastReadChapter } from "@/utils/reading-progress";
+import { setLastReadChapterAction } from "@/server-actions/reading-progress";
 import MagicRenderer from "./global/magic-tags/renderer";
+import { ContentDialogDrawer } from "@/components/ui/content-dialog-drawer";
 
 // Date formatting helper
 const formatDate = (date: string | Date) => {
@@ -106,44 +113,59 @@ export default function ChapterReaderPage({
     localStorage.setItem("reading-theme", readingTheme);
   }, [readingTheme]);
 
-  useEffect(() => {
-    const fetchChapter = async () => {
-      if (!slug || isNaN(chapterNumber)) return;
+  const fetchChapter = useCallback(async () => {
+    if (!slug || isNaN(chapterNumber)) return;
 
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
-      try {
-        const result = await getChapterBySlugAction(slug, chapterNumber);
+    try {
+      const result = await getChapterBySlugAction(slug, chapterNumber);
 
-        if (result.success && result.data) {
-          setChapterData(result.data);
-
-          // Check bookmark status if authenticated
-          if (isAuthenticated && result.data.series) {
-            const bookmarkResult = await checkBookmarkAction(
-              result.data.series.id
-            );
-            if (bookmarkResult.success && bookmarkResult.data) {
-              setIsBookmarked(bookmarkResult.data.isBookmarked);
-            }
+      if (result.success && result.data) {
+        setChapterData(result.data);
+        // Only count as "read" when they actually had content (free or purchased)
+        const hasContent =
+          result.data.chapter?.content !== undefined &&
+          result.data.chapter?.content !== null;
+        if (
+          hasContent &&
+          result.data.series &&
+          result.data.chapter?.chapterNumber
+        ) {
+          const { series, chapter } = result.data;
+          const chapterNum = chapter.chapterNumber;
+          if (isAuthenticated && series.id) {
+            await setLastReadChapterAction(series.id, chapterNum);
+          } else if (series.slug) {
+            setLastReadChapter(series.slug, chapterNum);
           }
-        } else {
-          const errorMessage = result.error || "Failed to fetch chapter";
-          console.error("Failed to fetch chapter:", errorMessage, result);
-          setError(errorMessage);
         }
-      } catch (err: any) {
-        const errorMessage = err.message || "An unexpected error occurred";
-        console.error("Error fetching chapter:", err);
+        if (isAuthenticated && result.data.series) {
+          const bookmarkResult = await checkBookmarkAction(
+            result.data.series.id
+          );
+          if (bookmarkResult.success && bookmarkResult.data) {
+            setIsBookmarked(bookmarkResult.data.isBookmarked);
+          }
+        }
+      } else {
+        const errorMessage = result.error || "Failed to fetch chapter";
+        console.error("Failed to fetch chapter:", errorMessage, result);
         setError(errorMessage);
-      } finally {
-        setLoading(false);
       }
-    };
-
-    fetchChapter();
+    } catch (err: any) {
+      const errorMessage = err.message || "An unexpected error occurred";
+      console.error("Error fetching chapter:", err);
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   }, [slug, chapterNumber, isAuthenticated]);
+
+  useEffect(() => {
+    fetchChapter();
+  }, [fetchChapter]);
 
   const handleBookmarkToggle = async () => {
     if (!isAuthenticated) {
@@ -240,22 +262,62 @@ export default function ChapterReaderPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <Spinner />
+      <div className="bg-background text-foreground">
+        <header className="sticky top-0 z-40 bg-card/80 backdrop-blur border-b border-border w-full">
+          <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+            <Skeleton className="h-9 w-28 rounded-lg bg-gray-400" />
+            <div className="flex-1 flex flex-col items-center gap-1 min-w-0">
+              <Skeleton className="h-5 w-48 rounded-md bg-gray-400" />
+              <Skeleton className="h-4 w-36 rounded-md bg-gray-400" />
+            </div>
+            <Skeleton className="h-9 w-9 shrink-0 rounded-lg bg-gray-400" />
+          </div>
+        </header>
+        <div className="max-w-4xl mx-auto px-4 py-8 lg:px-8 flex-1">
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-full rounded-md bg-gray-400" />
+            <Skeleton className="h-4 w-full rounded-md bg-gray-400" />
+            <Skeleton className="h-4 w-[85%] rounded-md bg-gray-400" />
+            <Skeleton className="h-4 w-full rounded-md bg-gray-400" />
+            <Skeleton className="h-4 w-full rounded-md bg-gray-400" />
+            <Skeleton className="h-4 w-3/4 rounded-md bg-gray-400" />
+            <div className="pt-6" />
+            <Skeleton className="h-4 w-full rounded-md bg-gray-400" />
+            <Skeleton className="h-4 w-full rounded-md bg-gray-400" />
+            <Skeleton className="h-4 w-2/3 rounded-md bg-gray-400" />
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error || !chapterData) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">
-            {error || "Chapter not found"}
+      <div className="bg-background text-foreground flex items-center justify-center px-4 py-16">
+        <div className="text-center max-w-md">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted/80 border border-border mb-6">
+            <BookOpen className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h2 className="text-xl font-semibold text-foreground mb-2">
+            Couldn't load this chapter
+          </h2>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-8">
+            {error ||
+              "Chapter not found. It may have been removed or the link might be incorrect."}
           </p>
-          <Link href={`${allSeries}/${slug}`}>
-            <Button>Back to Series</Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button
+              onClick={() => fetchChapter()}
+              variant="default"
+              className="gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Try again
+            </Button>
+            <Link href={`${allSeries}/${slug}`}>
+              <Button variant="outline">Back to Series</Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -271,26 +333,41 @@ export default function ChapterReaderPage({
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link
             href={`${allSeries}/${slug}`}
-            className="hover:text-primary transition"
+            className="flex items-center gap-1.5 hover:text-primary transition text-sm font-medium max-w-[140px] sm:max-w-none mr-4"
+            aria-label="Back to series"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-6 h-6 shrink-0" />
+            <span className="truncate hidden sm:inline">Back to series</span>
           </Link>
-          <div className="flex-1 text-center">
+          <div className="flex-1 text-center min-w-0">
             <h1 className="text-lg font-bold truncate">{series.title}</h1>
             <p className="text-sm text-muted-foreground">
               Chapter {chapter.chapterNumber}: {chapter.title}
             </p>
           </div>
-          <button
-            onClick={() => setShowMenu(!showMenu)}
-            className="p-2 hover:bg-primary/20 rounded-lg transition"
-          >
-            {showMenu ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
+          <div className="flex items-center gap-1 shrink-0">
+            {series.prologue && (
+              <ContentDialogDrawer
+                triggerLabel="Prologue"
+                title="Prologue"
+                responsive={true}
+                contentHtml={series.prologue}
+                triggerIcon={<ScrollText className="h-4 w-4 shrink-0" />}
+                triggerClassName="py-2 px-3 text-sm border-border hover:bg-primary/20 shrink-0"
+                wrapperClassName="mb-0 shrink-0"
+              />
             )}
-          </button>
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="p-2 hover:bg-primary/20 rounded-lg transition"
+            >
+              {showMenu ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -502,105 +579,195 @@ export default function ChapterReaderPage({
           </div>
         )}
 
-        {/* Chapter Content */}
-        {!isPremiumLocked && (
-          <article
-            className={`prose max-w-none mb-12 transition-all duration-300 rounded-lg p-6 md:p-8 ${
-              readingTheme === "light"
-                ? "bg-white text-gray-900 prose-headings:text-gray-900 prose-p:text-gray-800 prose-strong:text-gray-900"
-                : readingTheme === "light-gray"
-                ? "bg-gray-100 text-gray-800 prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900"
-                : readingTheme === "dark-gray"
-                ? "bg-gray-800 text-gray-200 prose-headings:text-gray-100 prose-p:text-gray-300 prose-strong:text-gray-100 prose-invert"
-                : "bg-gray-950 text-gray-100 prose-headings:text-gray-50 prose-p:text-gray-200 prose-strong:text-gray-50 prose-invert"
-            }`}
-            style={{
-              fontSize: `${fontSize}px`,
-              lineHeight: lineHeight,
-            }}
+        {/* Reading area: article + sticky bar + chapter nav (bar sticks until this block scrolls out) */}
+        <div>
+          {/* Chapter Content */}
+          {!isPremiumLocked && (
+            <article
+              className={`prose max-w-none mb-0 pb-16 transition-all duration-300 rounded-lg p-6 md:p-8 ${
+                readingTheme === "light"
+                  ? "bg-white text-gray-900 prose-headings:text-gray-900 prose-p:text-gray-800 prose-strong:text-gray-900"
+                  : readingTheme === "light-gray"
+                  ? "bg-gray-100 text-gray-800 prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900"
+                  : readingTheme === "dark-gray"
+                  ? "bg-gray-800 text-gray-200 prose-headings:text-gray-100 prose-p:text-gray-300 prose-strong:text-gray-100 prose-invert"
+                  : "bg-gray-950 text-gray-100 prose-headings:text-gray-50 prose-p:text-gray-200 prose-strong:text-gray-50 prose-invert"
+              }`}
+              style={{
+                fontSize: `${fontSize}px`,
+                lineHeight: lineHeight,
+              }}
+            >
+              {chapter.content ? (
+                <MagicRenderer
+                  content={chapter.content}
+                  readingTheme={readingTheme}
+                />
+              ) : (
+                <p
+                  className={
+                    readingTheme === "light" || readingTheme === "light-gray"
+                      ? "text-gray-600"
+                      : "text-muted-foreground"
+                  }
+                >
+                  No content available.
+                </p>
+              )}
+            </article>
+          )}
+
+          {/* Sticky Prev/Next bar: sticks to bottom only within this reading block */}
+          <nav
+            className="sticky bottom-0 z-30 mt-4 bg-card/95 backdrop-blur border border-border rounded-lg shadow-lg"
+            aria-label="Chapter navigation"
           >
-            {chapter.content ? (
-              <MagicRenderer
-                content={chapter.content}
-                readingTheme={readingTheme}
-              />
-            ) : (
-              <p
-                className={
-                  readingTheme === "light" || readingTheme === "light-gray"
-                    ? "text-gray-600"
-                    : "text-muted-foreground"
-                }
+            <div className="px-4 py-3 flex items-center justify-between gap-4">
+              {prevChapter ? (
+                <Link
+                  href={`${allSeries}/${slug}/chapter/${prevChapter.chapterNumber}`}
+                  className="flex self-start gap-2 min-w-0 flex-1 p-3 rounded-lg hover:bg-primary/10 hover:border-primary/50 border border-transparent transition text-left group"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center justify-start gap-2 text-primary mb-2 group-hover:translate-x-[4px] transition">
+                      <ChevronLeft className="w-5 h-5" />
+                      <span className="text-sm hidden sm:block">
+                        Previous Chapter
+                      </span>
+                      <span className="text-sm block sm:hidden">Previous</span>
+                    </div>
+                    <span className="font-medium text-foreground truncate block">
+                      Ch. {prevChapter.chapterNumber}: {prevChapter.title}
+                    </span>
+                    {prevChapter.isPremium && (
+                      <div className="flex items-center justify-end gap-1 mt-2 text-sm text-accent">
+                        <Lock className="w-4 h-4" />
+                        <span>Premium</span>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ) : (
+                <div className="flex self-start gap-2 min-w-0 flex-1 p-3 rounded-lg border border-transparent opacity-50 cursor-default">
+                  <ChevronLeft className="w-5 h-5 shrink-0 text-muted-foreground" />
+                  <div className="min-w-0">
+                    <span className="text-xs text-muted-foreground block">
+                      Previous
+                    </span>
+                    <span className="font-medium text-muted-foreground">—</span>
+                  </div>
+                </div>
+              )}
+
+              <Link
+                href={`${allSeries}/${slug}`}
+                className="shrink-0 text-xs text-muted-foreground hover:text-primary transition px-2"
               >
-                No content available.
-              </p>
-            )}
-          </article>
-        )}
+                Series
+              </Link>
 
-        {/* Chapter Navigation */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12 pt-8 border-t border-border">
-          {prevChapter ? (
-            <Link
-              href={`${allSeries}/${slug}/chapter/${prevChapter.chapterNumber}`}
-              className="p-4 bg-card border border-border rounded-lg hover:border-primary hover:bg-card/50 transition group"
-            >
-              <div className="flex items-center gap-2 text-primary mb-2 group-hover:translate-x-[-4px] transition">
-                <ChevronLeft className="w-5 h-5" />
-                <span className="text-sm">Previous Chapter</span>
-              </div>
-              <p className="font-semibold text-foreground">
-                Chapter {prevChapter.chapterNumber}: {prevChapter.title}
-              </p>
-              {prevChapter.isPremium && (
-                <div className="flex items-center gap-1 mt-2 text-sm text-accent">
-                  <Lock className="w-4 h-4" />
-                  <span>Premium</span>
+              {nextChapter ? (
+                <Link
+                  href={`${allSeries}/${slug}/chapter/${nextChapter.chapterNumber}`}
+                  className="flex self-start gap-2 min-w-0 flex-1 p-3 rounded-lg hover:bg-primary/10 hover:border-primary/50 border border-transparent transition text-right group justify-end"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center justify-end gap-2 text-primary mb-2 group-hover:translate-x-[4px] transition">
+                      <span className="text-sm hidden sm:block">
+                        Next Chapter
+                      </span>
+                      <span className="text-sm block sm:hidden">Next</span>
+                      <ChevronRight className="w-5 h-5" />
+                    </div>
+                    <span className="font-medium text-foreground truncate block">
+                      Ch. {nextChapter.chapterNumber}: {nextChapter.title}
+                    </span>
+                    {nextChapter.isPremium && (
+                      <div className="flex items-center justify-end gap-1 mt-2 text-sm text-accent">
+                        <Lock className="w-4 h-4" />
+                        <span>Premium</span>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ) : (
+                <div className="flex self-start gap-2 min-w-0 flex-1 p-3 rounded-lg border border-transparent opacity-50 cursor-default justify-end">
+                  <div className="min-w-0">
+                    <span className="text-xs text-muted-foreground block">
+                      Next
+                    </span>
+                    <span className="font-medium text-muted-foreground">—</span>
+                  </div>
+                  <ChevronRight className="w-5 h-5 shrink-0 text-muted-foreground" />
                 </div>
               )}
-            </Link>
-          ) : (
-            <div className="p-4 bg-card/50 border border-border rounded-lg opacity-50">
-              <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                <ChevronLeft className="w-5 h-5" />
-                <span className="text-sm">Previous Chapter</span>
-              </div>
-              <p className="font-semibold text-muted-foreground">
-                No previous chapter
-              </p>
             </div>
-          )}
+          </nav>
 
-          {nextChapter ? (
-            <Link
-              href={`${allSeries}/${slug}/chapter/${nextChapter.chapterNumber}`}
-              className="p-4 bg-card border border-border rounded-lg hover:border-primary hover:bg-card/50 transition group text-right"
-            >
-              <div className="flex items-center justify-end gap-2 text-primary mb-2 group-hover:translate-x-[4px] transition">
-                <span className="text-sm">Next Chapter</span>
-                <ChevronRight className="w-5 h-5" />
-              </div>
-              <p className="font-semibold text-foreground">
-                Chapter {nextChapter.chapterNumber}: {nextChapter.title}
-              </p>
-              {nextChapter.isPremium && (
-                <div className="flex items-center justify-end gap-1 mt-2 text-sm text-accent">
-                  <Lock className="w-4 h-4" />
-                  <span>Premium</span>
+          {/* Chapter Navigation (full cards) */}
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 pt-8 border-t border-border">
+            {prevChapter ? (
+              <Link
+                href={`${allSeries}/${slug}/chapter/${prevChapter.chapterNumber}`}
+                className="p-4 bg-card border border-border rounded-lg hover:border-primary hover:bg-card/50 transition group"
+              >
+                <div className="flex items-center gap-2 text-primary mb-2 group-hover:translate-x-[-4px] transition">
+                  <ChevronLeft className="w-5 h-5" />
+                  <span className="text-sm">Previous Chapter</span>
                 </div>
-              )}
-            </Link>
-          ) : (
-            <div className="p-4 bg-card/50 border border-border rounded-lg opacity-50 text-right">
-              <div className="flex items-center justify-end gap-2 text-muted-foreground mb-2">
-                <span className="text-sm">Next Chapter</span>
-                <ChevronRight className="w-5 h-5" />
+                <p className="font-semibold text-foreground">
+                  Chapter {prevChapter.chapterNumber}: {prevChapter.title}
+                </p>
+                {prevChapter.isPremium && (
+                  <div className="flex items-center gap-1 mt-2 text-sm text-accent">
+                    <Lock className="w-4 h-4" />
+                    <span>Premium</span>
+                  </div>
+                )}
+              </Link>
+            ) : (
+              <div className="p-4 bg-card/50 border border-border rounded-lg opacity-50">
+                <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                  <ChevronLeft className="w-5 h-5" />
+                  <span className="text-sm">Previous Chapter</span>
+                </div>
+                <p className="font-semibold text-muted-foreground">
+                  No previous chapter
+                </p>
               </div>
-              <p className="font-semibold text-muted-foreground">
-                No next chapter available
-              </p>
-            </div>
-          )}
+            )} */}
+
+          {/* {nextChapter ? (
+              <Link
+                href={`${allSeries}/${slug}/chapter/${nextChapter.chapterNumber}`}
+                className="p-4 bg-card border border-border rounded-lg hover:border-primary hover:bg-card/50 transition group text-right"
+              >
+                <div className="flex items-center justify-end gap-2 text-primary mb-2 group-hover:translate-x-[4px] transition">
+                  <span className="text-sm">Next Chapter</span>
+                  <ChevronRight className="w-5 h-5" />
+                </div>
+                <p className="font-semibold text-foreground">
+                  Chapter {nextChapter.chapterNumber}: {nextChapter.title}
+                </p>
+                {nextChapter.isPremium && (
+                  <div className="flex items-center justify-end gap-1 mt-2 text-sm text-accent">
+                    <Lock className="w-4 h-4" />
+                    <span>Premium</span>
+                  </div>
+                )}
+              </Link>
+            ) : (
+              <div className="p-4 bg-card/50 border border-border rounded-lg opacity-50 text-right">
+                <div className="flex items-center justify-end gap-2 text-muted-foreground mb-2">
+                  <span className="text-sm">Next Chapter</span>
+                  <ChevronRight className="w-5 h-5" />
+                </div>
+                <p className="font-semibold text-muted-foreground">
+                  No next chapter available
+                </p>
+              </div>
+            )} */}
+          {/* </div> */}
         </div>
 
         {/* Comments Section */}

@@ -268,7 +268,11 @@ export default function Navigation() {
               >
                 {navigationLinks.map(({ title, href, target }) => {
                   return (
-                    <div key={title} className="overflow-hidden">
+                    <div
+                      key={title}
+                      className="overflow-hidden"
+                      onClick={() => setOpen(false)}
+                    >
                       <motion.div
                         // @ts-ignore
                         variants={mobileLinkVariants}

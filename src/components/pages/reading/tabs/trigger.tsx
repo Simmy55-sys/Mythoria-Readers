@@ -1,19 +1,19 @@
 import {
   BookmarkIcon,
-  CheckCircle2Icon,
-  Clock3Icon,
+  // CheckCircle2Icon,
+  BookOpenIcon,
   PlusIcon,
 } from "lucide-react";
 import OngoingNovelReads from "./content/ongoing";
 import BookmarkedChapters from "./content/bookmarked";
 import NovelsToRead from "./content/to-read";
-import CompletedNovels from "./content/completed";
+// import CompletedNovels from "./content/completed";
 
 const tabsTriggers = [
   {
-    name: "Ongoing",
-    value: "ongoing",
-    icon: Clock3Icon,
+    name: "Reading",
+    value: "reading",
+    icon: BookOpenIcon,
     content: <OngoingNovelReads />,
   },
   {
@@ -28,12 +28,12 @@ const tabsTriggers = [
     icon: PlusIcon,
     content: <NovelsToRead />,
   },
-  {
-    name: "Completed",
-    value: "completed",
-    icon: CheckCircle2Icon,
-    content: <CompletedNovels />,
-  },
+  // {
+  //   name: "Completed",
+  //   value: "completed",
+  //   icon: CheckCircle2Icon,
+  //   content: <CompletedNovels />,
+  // },
 ];
 
 export default tabsTriggers;

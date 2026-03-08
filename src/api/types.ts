@@ -80,6 +80,7 @@ export interface SeriesDetailsResponse {
   author: string;
   translatorName: string;
   description: string;
+  prologue?: string | null;
   featuredImage: string;
   status: string;
   novelType: string;
@@ -127,6 +128,7 @@ export interface ChapterReaderResponse {
     id: string;
     title: string;
     slug: string;
+    prologue?: string | null;
   };
 }
 
@@ -184,6 +186,25 @@ export interface LikeResponse {
 
 export interface LikeCheckResponse {
   isLiked: boolean;
+}
+
+export interface LastReadChapterResponse {
+  lastChapterNumber: number | null;
+}
+
+export interface SetLastReadChapterResponse {
+  lastChapterNumber: number;
+}
+
+export interface OngoingSeriesItem {
+  seriesId: string;
+  title: string;
+  slug: string;
+  featuredImage: string | null;
+  status: string;
+  lastChapterNumber: number;
+  totalChapters: number;
+  updatedAt: string;
 }
 
 export interface PurchaseChapterResponse {

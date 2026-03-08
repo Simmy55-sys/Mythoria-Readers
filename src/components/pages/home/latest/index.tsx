@@ -1,12 +1,12 @@
 "use client";
 
 import { LockKeyhole, StarsIcon } from "lucide-react";
-import { MdOutlinePushPin } from "react-icons/md";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getLatestSeriesAction } from "@/server-actions/chapter";
-import { Spinner } from "@/components/ui/spinner";
 import { allSeries } from "@/routes/client";
+import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
 
 interface Chapter {
   id: string;
@@ -44,6 +44,33 @@ function formatDaysAgo(dateString: string): string {
   return years === 1 ? "1 year ago" : `${years} years ago`;
 }
 
+function LatestNovelSkeleton() {
+  return (
+    <div className="group cursor-pointer">
+      <div className="relative mb-4 overflow-hidden rounded-lg">
+        <Skeleton className="w-full aspect-3/4 bg-gray-400" />
+      </div>
+
+      <Skeleton className="h-4 w-3/4 mb-3 bg-gray-400" />
+
+      <div className="space-y-2">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="flex items-center justify-between text-xs"
+          >
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-3 w-20 bg-gray-400" />
+              <Skeleton className="h-3 w-3 bg-gray-400" />
+            </div>
+            <Skeleton className="h-3 w-16 bg-gray-400" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function LatestNovels() {
   const [novels, setNovels] = useState<Novel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,8 +102,17 @@ export default function LatestNovels() {
     return (
       <section>
         <div className="max-w-7xl mx-auto px-6 py-16">
-          <div className="flex items-center justify-center py-12">
-            <Spinner />
+          <div className="flex items-center gap-2 mb-8">
+            <StarsIcon size={24} className="text-primary" fill="currentColor" />
+            <h2 className="text-2xl font-bold text-foreground">
+              Latest Novels
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <LatestNovelSkeleton key={index} />
+            ))}
           </div>
         </div>
       </section>
@@ -112,15 +148,17 @@ export default function LatestNovels() {
               href={`${allSeries}/${novel.slug}`}
               className="group cursor-pointer"
             >
-              <div className="relative mb-4 overflow-hidden rounded-lg">
+              <div className="relative mb-4 overflow-hidden rounded-lg aspect-3/4">
                 {novel.featuredImage ? (
-                  <img
+                  <Image
                     src={novel.featuredImage}
-                    alt={novel.title}
-                    className="w-full aspect-3/4 object-cover group-hover:scale-105 transition-transform duration-300"
+                    alt={`Cover of ${novel.title}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
-                  <div className="w-full aspect-3/4 bg-muted group-hover:scale-105 transition-transform duration-300" />
+                  <div className="w-full h-full bg-muted group-hover:scale-105 transition-transform duration-300" />
                 )}
               </div>
 

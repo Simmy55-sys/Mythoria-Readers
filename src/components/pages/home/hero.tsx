@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { getLatestChaptersAction } from "@/server-actions/chapter";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
 import Link from "next/link";
 import { allSeries } from "@/routes/client";
 
@@ -22,6 +23,37 @@ interface LatestChapter {
     categories: string[];
   };
   contentPreview: string;
+}
+
+function HeroSkeleton() {
+  return (
+    <section className="relative min-h-[400px] md:h-[500px] overflow-hidden bg-linear-to-r from-background via-background to-background">
+      <div className="relative h-full max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-0 flex flex-col md:flex-row items-center md:items-stretch">
+        {/* Content skeleton - left half */}
+        <div className="w-full md:w-1/2 md:pr-8 z-10 flex flex-col justify-center space-y-3 md:space-y-4 order-2 md:order-1">
+          <Skeleton className="h-4 w-24 bg-gray-400" />
+          <Skeleton className="h-8 md:h-9 w-full max-w-md bg-gray-400" />
+          <Skeleton className="h-4 w-full bg-gray-400" />
+          <Skeleton className="h-4 w-3/4 max-w-md bg-gray-400" />
+          <Skeleton className="h-4 w-3/4 max-w-sm md:hidden bg-gray-400" />
+          <div className="flex gap-2 flex-wrap py-2 md:py-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton
+                key={i}
+                className="h-6 w-16 md:w-20 rounded-full bg-gray-400"
+              />
+            ))}
+          </div>
+          <Skeleton className="h-11 w-full md:w-40 rounded-full mt-2 md:mt-4 bg-gray-400" />
+        </div>
+
+        {/* Image skeleton - right half */}
+        <div className="w-full md:w-1/2 h-[250px] md:h-full relative mb-4 md:mb-0 order-1 md:order-2">
+          <Skeleton className="w-full h-full rounded-lg bg-gray-400" />
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export default function Hero() {
@@ -79,13 +111,7 @@ export default function Hero() {
   }, []);
 
   if (loading) {
-    return (
-      <section className="relative min-h-[400px] md:h-[500px] overflow-hidden bg-linear-to-r from-background via-background to-background">
-        <div className="relative h-full max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-0 flex items-center justify-center">
-          <Spinner />
-        </div>
-      </section>
-    );
+    return <HeroSkeleton />;
   }
 
   if (error || chapters.length === 0) {
@@ -161,17 +187,19 @@ export default function Hero() {
         {/* Image - Mobile: Full width top, Desktop: Right half */}
         <div className="w-full md:w-1/2 h-[250px] md:h-full relative mb-4 md:mb-0 order-1 md:order-2">
           <div
-            className={`h-full transition-opacity duration-500 ${
+            className={`relative h-full transition-opacity duration-500 ${
               isTransitioning ? "opacity-0" : "opacity-100"
             }`}
             key={`image-${activeSlide}`}
           >
-            <img
+            <Image
               src={currentChapter.series.featuredImage || "/placeholder.svg"}
-              alt={currentChapter.series.title}
-              className="w-full h-full object-cover max-sm:object-contain rounded-lg md:rounded-lg"
+              alt={`Cover of ${currentChapter.series.title}`}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover max-sm:object-contain rounded-lg md:rounded-lg"
             />
-            <div className="absolute inset-0 bg-linear-to-b md:bg-linear-to-l from-transparent via-transparent to-background md:to-background rounded-lg" />
+            <div className="absolute inset-0 bg-linear-to-b md:bg-linear-to-l from-transparent via-transparent to-background md:to-background rounded-lg pointer-events-none" />
           </div>
         </div>
       </div>

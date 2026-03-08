@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,12 +16,14 @@ export default function NovelsToReadCard({ novel }: { novel: Novel }) {
   return (
     <Card className="overflow-hidden hover:border-none transition-colors group">
       <div className="relative overflow-hidden h-64">
-        <img
+        <Image
           src={novel.cover || "/placeholder.svg"}
-          alt={novel.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+          alt={`Cover of ${novel.title}`}
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover group-hover:scale-110 transition-transform duration-300"
         />
-        <div className="absolute inset-0 bg-linear-to-t from-background via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-background via-transparent to-transparent pointer-events-none" />
       </div>
 
       <div className="p-4">

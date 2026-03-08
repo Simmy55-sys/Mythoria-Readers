@@ -18,6 +18,11 @@ export const removeBookmarkRoute = (seriesId: string) =>
 export const checkBookmarkRoute = (seriesId: string) =>
   `/bookmark/series/${seriesId}`;
 export const getUserBookmarksRoute = "/bookmark/series";
+export const getLastReadChapterRoute = (seriesId: string) =>
+  `/reading-progress/series/${seriesId}`;
+export const setLastReadChapterRoute = (seriesId: string) =>
+  `/reading-progress/series/${seriesId}`;
+export const getOngoingSeriesRoute = "/reading-progress/ongoing";
 export const likeSeriesRoute = (seriesId: string) => `/like/series/${seriesId}`;
 export const unlikeSeriesRoute = (seriesId: string) =>
   `/like/series/${seriesId}`;

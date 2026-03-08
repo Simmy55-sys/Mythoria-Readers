@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { StarIcon } from "lucide-react";
 import Link from "next/link";
 import { getMostPopularSeriesAction } from "@/server-actions/chapter";
-import { Spinner } from "@/components/ui/spinner";
 import Image from "next/image";
 import { allSeries } from "@/routes/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PopularSeries {
   id: string;
@@ -14,6 +14,31 @@ interface PopularSeries {
   slug: string;
   featuredImage: string;
   categories: string[];
+}
+
+function MostPopularCardSkeleton({ index }: { index: number }) {
+  return (
+    <div className="flex gap-4 p-4 rounded-lg group cursor-pointer">
+      <div className="shrink-0">
+        <Skeleton className="w-20 h-24 rounded-lg bg-gray-400" />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-xl font-bold text-accent shrink-0">
+            {index + 1}
+          </span>
+          <Skeleton className="h-4 w-3/4 bg-gray-400" />
+        </div>
+
+        <div className="flex flex-wrap gap-2 mt-2">
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <Skeleton key={idx} className="h-5 w-16 rounded-full bg-gray-400" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function MostPopular() {
@@ -47,8 +72,15 @@ export default function MostPopular() {
     return (
       <section>
         <div className="max-w-7xl mx-auto px-6 py-16">
-          <div className="flex items-center justify-center py-12">
-            <Spinner />
+          <div className="flex items-center gap-2 mb-8">
+            <StarIcon size={24} className="text-primary" fill="currentColor" />
+            <h2 className="text-2xl font-bold text-foreground">Most Popular</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 9 }).map((_, index) => (
+              <MostPopularCardSkeleton key={index} index={index} />
+            ))}
           </div>
         </div>
       </section>
@@ -88,9 +120,10 @@ export default function MostPopular() {
                 {novel.featuredImage ? (
                   <Image
                     src={novel.featuredImage}
-                    alt={novel.title}
+                    alt={`Cover of ${novel.title}`}
                     width={80}
                     height={96}
+                    sizes="80px"
                     className="w-20 h-24 rounded-lg object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
